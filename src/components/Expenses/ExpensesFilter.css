@@ -34,9 +34,6 @@
   display: block;
 }
 
-.expenses-filter__chart p {
-}
-
 .expenses-filter label {
   font-weight: bold;
   margin-bottom: 0.5rem;
