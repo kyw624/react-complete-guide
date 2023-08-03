@@ -1,16 +1,23 @@
 import React from 'react';
 
 function InvestTableRow(props) {
-  /*
-    연도 / 총 저축액 / 연 이자 / 총 이자 / 투하자본 (총 저축액 - 총 이자)
-  */
+  // 연도 / 총 저축액 / 연 이자 / 총 이자 / 투하자본 (총 저축액 - 총 이자)
+
+  const [year, totalSavings, yearlyInterest, totalInterest] = props.data;
+  const formatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+
   return (
     <tr>
-      <td>{props.data[0]}</td>
-      <td>${props.data[1].toFixed(2)}</td>
-      <td>${props.data[2].toFixed(2)}</td>
-      <td>${props.data[3].toFixed(2)}</td>
-      <td>${(props.data[1] - props.data[3]).toFixed(2)}</td>
+      <td>{year}</td>
+      <td>{formatter.format(totalSavings)}</td>
+      <td>{formatter.format(yearlyInterest)}</td>
+      <td>{formatter.format(totalInterest)}</td>
+      <td>{formatter.format(totalSavings - totalInterest)}</td>
     </tr>
   );
 }

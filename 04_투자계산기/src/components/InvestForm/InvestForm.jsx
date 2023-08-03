@@ -11,6 +11,13 @@ function InvestForm(props) {
     예상 투자 수익률 | 투자 기간
   */
 
+  const initialUserInput = {
+    'current-savings': 10000,
+    'yearly-contribution': 1200,
+    'expected-return': 7,
+    duration: 10,
+  };
+
   const inputItems = [
     { id: 1, name: 'current-savings', title: 'Current Savings ($)' }, // 현재 저축액
     { id: 2, name: 'yearly-contribution', title: 'Yearly Savings ($)' }, // 매년 추가할 금액
@@ -22,12 +29,7 @@ function InvestForm(props) {
     { id: 4, name: 'duration', title: 'Investment Duration (years)' }, // 투자 기간
   ];
 
-  const [userInput, setUserInput] = useState({
-    'current-savings': '',
-    'yearly-contribution': '',
-    'expected-return': '',
-    duration: '',
-  });
+  const [userInput, setUserInput] = useState(initialUserInput);
 
   const handleInputChange = (e) => {
     setUserInput((prev) => {
@@ -39,12 +41,7 @@ function InvestForm(props) {
   };
 
   const handleReset = () => {
-    setUserInput({
-      'current-savings': '',
-      'yearly-contribution': '',
-      'expected-return': '',
-      duration: '',
-    });
+    setUserInput(initialUserInput);
     props.setDatas([]);
   };
 
@@ -57,21 +54,22 @@ function InvestForm(props) {
   };
 
   return (
-    <form className="form">
+    <form className="form" onSubmit={handleSubmit}>
       <div className="input-group">
         {inputItems.map((inputItem) => (
           <InvestInput
             key={inputItem.id}
             item={inputItem}
+            state={userInput[inputItem.name]}
             onChange={handleInputChange}
           />
         ))}
       </div>
       <p className="actions">
-        <InvestFormButton type="reset" onReset={handleReset}>
+        <InvestFormButton class="buttonAlt" type="reset" onReset={handleReset}>
           Reset
         </InvestFormButton>
-        <InvestFormButton type="submit" onSubmit={handleSubmit}>
+        <InvestFormButton class="button" type="submit">
           Calculate
         </InvestFormButton>
       </p>

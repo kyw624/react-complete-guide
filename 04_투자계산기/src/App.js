@@ -43,7 +43,7 @@ function App() {
       <InvestForm onCalculate={calculateHandler} setDatas={setDatas} />
       {datas.length !== 0 && <InvestTable datas={datas} />}
       {datas.length === 0 && (
-        <p style={{ textAlign: 'center' }}>No Investment calculated yet.</p>
+        <p style={{ textAlign: 'center' }}>No investment calculated yet.</p>
       )}
     </div>
   );

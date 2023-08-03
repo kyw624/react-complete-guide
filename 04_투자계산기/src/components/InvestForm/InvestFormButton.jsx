@@ -4,11 +4,7 @@ import './InvestFormButton.css';
 
 function InvestFormButton(props) {
   return (
-    <button
-      type={props.type}
-      className={props.type === 'reset' ? 'buttonAlt' : 'button'}
-      onClick={props.type === 'reset' ? props.onReset : props.onSubmit}
-    >
+    <button type={props.type} className={props.class} onClick={props.onReset}>
       {props.children}
     </button>
   );
