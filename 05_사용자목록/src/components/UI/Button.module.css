@@ -1,0 +1,7 @@
+.button {
+  background: purple;
+  color: white;
+  font-weight: bold;
+  padding: 6px;
+  width: fit-content;
+}
