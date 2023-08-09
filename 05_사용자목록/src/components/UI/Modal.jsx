@@ -2,18 +2,24 @@ import React from 'react';
 
 import Card from './Card';
 import Button from './Button';
-
 import classes from './Modal.module.css';
 
 function Modal(props) {
   return (
-    <div className={classes.container}>
-      <Card size="inherit">
-        <div className={classes.header}>Invalid input</div>
-        <div className={classes.body}>Please enter a valid</div>
-        <Button onClick={props.onClick} type="modal" value="Okay" />
+    <>
+      <div className={classes.backdrop} onClick={props.onError} />
+      <Card className={classes.modal}>
+        <header className={classes.header}>
+          <h2>{props.title}</h2>
+        </header>
+        <div className={classes.content}>
+          <p>{props.message}</p>
+        </div>
+        <footer className={classes.footer}>
+          <Button onClick={props.onError}>Okay</Button>
+        </footer>
       </Card>
-    </div>
+    </>
   );
 }
 
