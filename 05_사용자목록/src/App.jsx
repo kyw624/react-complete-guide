@@ -7,11 +7,13 @@ function App() {
   const [users, setUsers] = useState([]);
   const [keyCount, setKeyCount] = useState(1);
 
-  const updateUser = (user) => {
+  const updateUser = (username, age) => {
     const userObj = {
-      ...user,
+      username,
+      age,
       id: keyCount,
     };
+    console.log(userObj);
 
     setKeyCount((prevKey) => prevKey + 1);
 
