@@ -128,3 +128,189 @@
   - 함수 선언식과의 차이
 
 ---
+
+<br>
+
+## 2. User Interaction & State
+
+### 1. 리액트의 이벤트 핸들링
+
+### 2. State 다루기 & UI 업데이트
+
+### 3. 컴포넌트 & State 더 자세히 살펴보기
+
+### 4. 리스트 컨텐츠의 동적/조건부 렌더링
+
+---
+
+<br>
+
+- **이벤트 핸들러 및 props 네이밍**
+
+  1. 기본 네이밍
+
+     - function: `handleEvent`의 형식
+     - props: `onEvent`의 형식
+
+     ```jsx
+     function Example() {
+       const handleClick = () => {...};
+
+       return <button onClick={handleClick} />;
+     }
+     ```
+
+  2. 상위/하위 컴포넌트 관계에서
+
+     - function: `handleTargetEvent`의 형식
+     - props: `onTargetEvent`의 형식
+
+     ```jsx
+     function Parent() {
+       const handleCountChange = () => {...};
+
+       return (
+         <Child onCountChange={handleCountChange} />
+       )
+     }
+
+     function Child({ onCountChange }) {
+       const handleButtonClick = (event) => {
+         onCountChange(event.target.value);
+       };
+
+       return <button onClick={handleButtonClick}>Click</button>
+     }
+     ```
+
+<br>
+
+- **한 컴포넌트에서 여러 상태를 관리할 때의 방식**
+
+  2가지 방법 모두 괜찮다.
+
+  1. 여러개의 `useState()`로 각 상태마다 독립적으로 관리
+  2. 한번의 `useState()`로 객체 형태로 한번에 관리
+
+<br>
+
+- **이전 상태에 의존하는 상태 업데이트**
+
+  상태값을 객체 형태로 전달하는 등의 `이전 상태값에 의존해 업데이트되는 함수를 정의`할 때 2가지 방식이 있다.
+
+  - 1번처럼 직접 상태값에 접근하면 오래되거나 잘못된 이전 상태값을 가져올 수 있으므로 비추천.
+  - 2번처럼 매개변수로 이전 상태값을 가져와 사용하면 가장 최신의 상태값을 보장하기때문에 안전하고 권장한다.
+
+  > 리액트에서 상태 업데이트는 곧바로 되지않고 자체 스케줄에 의해 실행되므로,  
+  > 동시에 많은 상태 업데이트가 계획되었다면  
+  > 오래되거나 잘못된 상태값을 가져와 업데이트할 수 있기 때문.
+
+  ```jsx
+  const [data, setData] = useState({
+    name: '',
+    age: '',
+    gender: '',
+  });
+
+  const handleChange = (event) => {
+    // 1. BAD - 직접 상태값에 접근
+    setData({
+      ...data,
+      age: event.target.value,
+    });
+
+    // 2. GOOD - 이전 상태값을 매개변수로 받아옴
+    setData((prevState) => {
+      return { ...prevState, age: event.target.value };
+    });
+  };
+  ```
+
+<br>
+
+- **Stateful 컴포넌트 vs Stateless 컴포넌트**
+
+  더 좋고 나쁘고가 아닌 용어일뿐이며, 대부분의 리액트 앱에서 Dumb 컴포넌트를 더 많이 갖게될 것이다.
+
+  1. **Stateful 컴포넌트**  
+     **상태값을 가지고 있는** 컴포넌트.  
+     `Smart` 컴포넌트라고도 불린다.
+  2. **Stateless 컴포넌트**  
+     **상태값이 없는** 화면을 출력하는데 초점을 둔 컴포넌트.  
+     `Dumb` 컴포넌트, `Presentational` 컴포넌트라고도 불린다.
+
+<br>
+
+- **Key**
+
+  - 리스트에서 React가 어떤 항목을 변경, 추가 또는 삭제할지 식별하는 것을 돕는다.
+  - 리스트의 각 항목들마다 고유하게 식별할 수 있는 문자열을 사용하는 것이 가장 좋은데, 대부분의 경우 데이터의 ID를 사용한다.
+
+    > 안정적인 ID가 없다면 최후의 수단으로 항목의 인덱스를 사용할 수 있지만 권장하지 않는다.
+
+  - **Key 사용 이유**  
+    리액트는 기본적으로 기존 트리와의 차이점을 찾아 렌더링하게 되는데,  
+    **리스트의 맨 앞**에 요소를 추가할 경우
+    1. `key가 없다면`  
+       추가 후 다른 형제 요소들까지 다시 렌더링하게돼서 비효율적이다.
+    2. `key가 있다면`  
+       추가 후 다른 요소들은 위치에 맞게 이동만 시킨다.
+
+---
+
+<br>
+
+## 3. Styling Components
+
+### 1. 조건부 & 동적 스타일
+
+### 2. Styled Components
+
+### 3. CSS Modules
+
+---
+
+<br>
+
+- **CSS Modules**
+
+  - 리액트에서 css 파일로 스타일 적용 시 전역으로 적용되기때문에  
+    실수로 특정 클래스명이 중복으로 사용될 수 있는데,  
+    컴포넌트마다 따로 css 파일을 작성해서 이를 방지할 수 있다.
+
+  - CRA에 기본으로 내장.
+
+  - 사용법
+
+    ```jsx
+    // 1. css 파일명 뒤에 .module.css를 붙인다.
+    // ex) Button.module.css
+
+    // 2. import
+    import styles from './Button.module.css'; // 이런식으로 import해야 한다.
+
+    // 3. 컴포넌트에 css 모듈 class 적용
+    // styles는 객체의 형태로 해당 파일의 모든 클래스명을 갖는다.
+    // ex) 1. className={styles.button}
+    //     2. className={styles['button']}
+    const Button = () => {
+      return <button className={styles.button}>CSS 모듈 예제</button>;
+    };
+
+    // 4. 개발자 도구에서는 요소의 클래스명이 "컴포넌트명_클래스명__고유한 해시값" 으로 나타나고,
+    // style 태그 내부에도 새로 만들어진 클래스명으로 나타난다.
+    ```
+
+---
+
+<br>
+
+## 4. Debugging React Apps
+
+### 1. 에러 메시지의 이해
+
+### 2. 리액트 앱 디버깅 & 분석
+
+### 3. DevTools
+
+---
