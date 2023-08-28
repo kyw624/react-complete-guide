@@ -1,4 +1,4 @@
-# Section1: Basics & Foundation
+# Part1: Basics & Foundation
 
 ## 1. Component-Driven User Interface
 
