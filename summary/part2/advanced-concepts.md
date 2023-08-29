@@ -727,10 +727,120 @@
 
        ```html
        <!-- 2. 현재 평가 결과 -->
-       <!-- div, h1 태그는 건들지않고 p 태그만 추가 -->
+       <!--
+          이전 스냅샷과 비교하여
+          div, h1 태그는 건들지않고
+          p 태그만 추가
+        -->
        <div>
          <h1>Hi there!</h1>
          <!-- 차이점 -->
          <p>This is new!</p>
        </div>
        ```
+
+  3.  기본적으로 부모 컴포넌트가 재평가되면 자식 컴포넌트도 재평가된다.  
+       이런 불필요한 렌더링을 해결하기 위한 방법들 중 한가지로 `React.memo()`가 있다.
+
+      - 모든 props 값을 확인한 뒤 값이 바뀐 경우에만 컴포넌트를 재평가, 재실행한다.
+
+      - `memo`로 props 값을 비교할 때 비교연산자가 사용되기때문에,  
+         원시값이 아닌 props 값들 (함수, 객체 등)은 항상 변경된 것으로 인식한다.
+
+        `props.value === props.previous.value`
+
+        > 이렇게 작동하지는 않지만 이런식으로 작동한다.
+
+        1. 원시값의 경우
+
+           ```jsx
+           // 항상 false만을 전달해 변경이 없어 리렌더 X
+           const DemoOutput = (props) => {
+             return <p>{props.show ? 'This is new!' : ''}</p>
+           }
+
+           function App() {
+             return <DemoOutput show={false}>
+           }
+           ```
+
+        2. 원시값이 아닌 객체, 함수 등의 경우
+
+           ```jsx
+           // 항상 같은 함수를 전달하지만
+           // 새롭게 생성되기때문에 다른 함수로 인식
+           function App() {
+             const [showParagraph, setShowParagraph] = useState(false);
+
+             const handleShowParagraph = () => {
+               setShowParagraph((prevState) => !prevState);
+             };
+
+             return (
+               <Button onClick={handleShowParagraph}>Toggle Paragraph</Button>
+             );
+           }
+           ```
+
+           이 경우에는 함수를 저장할 수 있는 `useCallback()` 사용
+
+           ```jsx
+           const handleShowParagraph = useCallback(() => {
+             {
+               setShowParagraph((prevState) => !prevState);
+             }
+           }, [dependency]);
+           ```
+
+      - memo가 적용된 컴포넌트의 자식 컴포넌트들에게도 영향을 준다.
+
+        > memo 적용 컴포넌트가 실행되지 않으면  
+        > 그 자식들도 재실행되지 않는다.
+
+      - 예시
+
+        ```jsx
+        import React from 'react';
+
+        const DemoOutput = (props) => {};
+
+        // React.memo로 감싸주면 끝
+        export default React.memo(DemoOutput);
+        ```
+
+      - 단점  
+         root 컴포넌트에 변경이 발생할 때마다 memo가 적용된 컴포넌트로 이동해 기존 props 값과 새로운 값을 비교한다.  
+         이는 곧 리액트에게 2가지의 추가 작업 비용을 발생시킨다.
+
+        1. 기존 props 값을 저장하는 공간
+        2. 비교하는 작업
+
+        따라서 앱의 크기, props의 개수, 컴포넌트의 복잡도, 자식 컴포넌트 개수 등  
+        여러 요인에 의한 비용의 차이가 있기때문에 무조건적인 사용은 피해야한다.
+
+- **리액트의 상태 관리**
+
+  - 리액트는 `useState`와 전달된 기본값에 대해서는 한번만 만들고 관리한다.
+
+    1. App 컴포넌트를 최초 실행할 때 useState 호출되면 리액트가 관리하는 새로운 상태변수를 만들고,  
+       그 변수가 어느 컴포넌트에 속하는지 기억해둔다.
+
+    2. 이후 기본값을 사용해서 초기화한다.
+
+    3. 다음으로 컴포넌트의 재평가 과정에서 useState가 호출되면 새롭게 상태변수를 생성하지는 않고, 필요한 경우 상태를 업데이트한다.
+
+    4. 컴포넌트가 DOM에서 제거되거나 다시 연결되면 새로운 상태가 초기화될 수 있다.
+
+  - **상태 업데이트 스케줄링**  
+    리액트는 상태를 업데이트하는 setState 함수가 호출되면 그 즉시 상태를 업데이트하는 것이 아닌 갱신 예약인 상태로 스케줄에 넣어둔다.  
+     대부분의 경우 상태 변경이 발생하면 스케줄 작업이 매우 빠르게 발생해 거의 즉각적이나 다름없다.
+
+    > 하나의 프로세스 (ex. 함수) 에서 여러개의 상태 변경이 일어났다면,  
+    > 한번에 처리되도록 스케줄에 묶어서 등록된다.
+
+<br>
+
+- **`useMemo()`**  
+  결과를 기억하는 훅으로 자주 사용할 일은 없을 것.
+
+  - 메모리를 사용해 데이터를 저장하므로 일정 성능을 사용한다.
