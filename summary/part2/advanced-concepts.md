@@ -844,3 +844,97 @@
   결과를 기억하는 훅으로 자주 사용할 일은 없을 것.
 
   - 메모리를 사용해 데이터를 저장하므로 일정 성능을 사용한다.
+
+---
+
+## 4. 클래스 컴포넌트
+
+### 1. 클래스 컴포넌트와 존재 이유
+
+### 2. 클래스 컴포넌트의 작동
+
+### 3. Error Boundary
+
+---
+
+<br>
+
+- **컴포넌트 라이프 사이클**
+
+  1. componentDidMount()  
+     컴포넌트 마운트 시
+
+     > = useEffect(..., [])  
+     > 빈 배열의 useEffect와 같다.
+
+  2. componentDidUpdate()  
+     컴포넌트 업데이트 시 (ex. 리렌더)
+
+     > = useEffect(..., [someValue])  
+     > 의존성 값이 있는 useEffect와 같다.
+
+  3. componentWillUnmount()  
+     컴포넌트가 DOM에서 삭제되기 전
+     > = useEffect의 cleanup  
+     > cleanup 함수와 같다.
+
+<br>
+
+- **Error Boundary**  
+  앱에서 오류가 발생했을 경우 모든 컴포넌트의 실행이 중단되면서 앱 전체 강제 중단을 막으면서 에러를 처리하는 기법으로,  
+  리액트에서 컴포넌트 렌더링 에러 처리에 `try-catch` 사용이 불가능한데, 이럴 때 사용할 수 있다.
+
+  - 클래스 내부에 `componentDidCatch()` 메서드를 추가하면 클래스 컴포넌트를 에러 바운더리로 만들게 된다.
+
+    ```jsx
+    import { Component } from 'react';
+
+    class ErrorBoundary extends Component {
+      constructor() {
+        super();
+        this.state = { hasError: false };
+      }
+
+      componentDidCatch(error) {
+        console.log(error);
+        this.setState({ hasError: true });
+      }
+
+      render() {
+        if (this.state.hasError) {
+          // 에러 발생 시 표시 할 메시지
+          return <p>Something went wrong!</p>;
+        }
+
+        // 에러 미발생 시 감싼 기존 컴포넌트
+        return this.props.children;
+      }
+    }
+
+    export default ErrorBoundary;
+    ```
+
+  - 사용 할 컴포넌트를 감싸준다. (여러 개도 가능)
+
+    ```jsx
+    class UserFinder extends Component {
+      // ...
+
+      render() {
+        return (
+          <Fragment>
+            =
+            <div className={classes.finder}>
+              <input
+                type='search'
+                onChange={this.handleSearchChange.bind(this)}
+              />
+            </div>
+            <ErrorBoundary>
+              <Users users={this.state.filteredUsers} />
+            </ErrorBoundary>
+          </Fragment>
+        );
+      }
+    }
+    ```
