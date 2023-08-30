@@ -19,6 +19,13 @@ class Users extends Component {
     });
   }
 
+  // ErrorBoundary를 위한 에러 발생
+  componentDidUpdate() {
+    if (this.props.users.length === 0) {
+      throw new Error('No users provided!');
+    }
+  }
+
   render() {
     const usersList = (
       <ul>
