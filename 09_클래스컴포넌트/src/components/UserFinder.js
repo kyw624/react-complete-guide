@@ -3,6 +3,7 @@ import { Fragment, Component } from 'react';
 
 import Users from './Users';
 import classes from './UserFinder.module.css';
+import UsersContext from '../store/users-context';
 
 const DUMMY_USERS = [
   { id: 'u1', name: 'Max' },
@@ -11,6 +12,8 @@ const DUMMY_USERS = [
 ];
 
 class UserFinder extends Component {
+  static contextType = UsersContext;
+
   constructor() {
     super();
     this.state = {
@@ -21,7 +24,7 @@ class UserFinder extends Component {
 
   componentDidMount() {
     // 처음 렌더링 될 때 HTTP 요청
-    this.setState({ filteredUsers: DUMMY_USERS });
+    this.setState({ filteredUsers: this.context.users });
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -41,6 +44,7 @@ class UserFinder extends Component {
   render() {
     return (
       <Fragment>
+        =
         <div className={classes.finder}>
           <input type='search' onChange={this.handleSearchChange.bind(this)} />
         </div>
