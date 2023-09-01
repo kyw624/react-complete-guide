@@ -66,8 +66,7 @@ function App() {
         throw new Error('Error! Something went wrong!');
       }
 
-      const data = await response.json();
-      console.log(data);
+      handleFetchMovies();
     } catch (error) {
       setError(error.message);
     }
