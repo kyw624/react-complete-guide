@@ -11,11 +11,23 @@ function AddMovie(props) {
     event.preventDefault();
 
     // could add validation here...
+    const title = titleRef.current.value;
+    const openingText = openingTextRef.current.value;
+    const releaseDate = releaseDateRef.current.value;
+
+    if (
+      title.trim() === '' ||
+      openingText.trim() === '' ||
+      releaseDate.trim() === ''
+    ) {
+      console.log('Error! 입력값 검증 오류');
+      return;
+    }
 
     const movie = {
-      title: titleRef.current.value,
-      openingText: openingTextRef.current.value,
-      releaseDate: releaseDateRef.current.value,
+      title,
+      openingText,
+      releaseDate,
     };
 
     props.onAddMovie(movie);
