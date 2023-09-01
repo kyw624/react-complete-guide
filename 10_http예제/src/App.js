@@ -50,6 +50,12 @@ function App() {
   async function handleAddMovie(movie) {
     setError(null);
 
+    // 이미 같은 영화가 있는 경우
+    if (movies.find((m) => m.title === movie.title)) {
+      setError('Error! Movie with this title already exists!');
+      return;
+    }
+
     try {
       const response = await fetch(
         'https://react-http-tutorial-ce001-default-rtdb.asia-southeast1.firebasedatabase.app/movies.json',
