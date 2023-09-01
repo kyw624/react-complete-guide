@@ -938,3 +938,144 @@
       }
     }
     ```
+
+---
+
+## 5. 백엔드 & 데이터베이스 연동
+
+### 1. 리액트와 데이터베이스가 소통하는 방법
+
+### 2. Http 요청 전송 & 응답 처리 방법
+
+### 3. 로딩 State & 에러 핸들링
+
+---
+
+<br>
+
+- **리액트와 데이터베이스의 소통 방법**
+
+  - 기본적으로 클라이언트에서 데이터베이스에 직접 접근하는 방식은 큰 보안 문제로, 해서는 안된다.
+
+    > 사용자도 접근이 가능하기때문
+
+  - 보통은 데이터베이스와 통신하는 백엔드 서버와 API를 통해 통신한다.
+
+<br>
+
+- **HTTP 통신**
+
+  1. Axios  
+     별도의 패키지 설치가 필요하며, 자체적인 에러 처리, 요청 취소 기능 등 추가 기능을 제공한다.  
+     크고 복잡한 프로젝트에서 선호된다.
+
+     - `fetch(arg1, arg2)`
+
+       1. arg1 (필수): 문자열 형태의 URL
+
+       2. arg2 (선택): 객체 형태의 옵션 (method, headers, body, ...)
+
+  2. Fetch API  
+     브라우저 내장 함수로 별도로 설치할 필요가 없지만, 에러 처리가 다소 번거로운 단점이 있기때문에  
+     작은 규모의 프로젝트의 간단한 요청을 처리하는 경우에 효과적이다.
+
+     - `fetch(arg1, arg2)`
+
+       1. arg1 (필수): 문자열 형태의 URL
+
+       2. arg2 (선택): 객체 형태의 옵션 (method, headers, body, ...)
+
+       3. 반환값: Promise 객체
+
+       ```js
+       function handleFetch() {
+         fetch('URL', {
+          method:, // 기본값 GET
+          headers:, // HTTP 헤더 지정
+          body:, // HTTP 바디의 데이터 지정
+          mode:, // 요청 모드 지정
+          credentials:, // 자격 증명 설정
+          cache:, // 캐싱 동작
+         }).then((response) => {
+          return response.json();
+          }).then((data) => data);
+       }
+       ```
+
+<br>
+
+- **async/await**  
+  기존 fetch 구문에서 프로미스 체이닝으로 데이터를 가공하는 과정인 then 구문의 생략이 가능해져서  
+  코드의 가독성이 좋아지고, 기존과 동일하게 비동기 처리가 가능해진다.
+
+  ```js
+  // 프로미스 체이닝
+  function handleFetch() {
+    fetch('URL')
+      .then((response) => response.json())
+      .then((data) => {
+        setData(data.results);
+      });
+  }
+  ```
+
+  ```js
+  // async & await
+  async function handleFetch() {
+    const response = await fetch('URL');
+    const data = await response.json();
+
+    setData(data.results);
+  }
+  ```
+
+<br>
+
+- **에러 처리**  
+  try-catch 구문과 response 상태를 확인해 처리.
+
+  ```jsx
+  function App() {
+    async function handleFetch() {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await fetch('URL');
+
+        // HTTP 요청 성공 체크
+        if (response.ok) {
+          throw new Error('에러 메시지');
+        }
+      } catch (error) {
+        setError(error.message);
+      }
+
+      setIsLoading(false); // 성공하던 실패하던 로딩은 중지
+    }
+
+    return (
+      <>
+      {isLoading && <p>Loading...</p>}
+      {!isLoading && error && <p>{error}</p>}
+      </p>
+    )
+  }
+  ```
+
+<br>
+
+- **POST 요청**
+
+  1. fetch
+
+  ```js
+  fetch('URL', {
+    method: 'POST',
+    body: '보낼 데이터',
+    headers: {
+      'Content-Type': 'application/json', // 데이터의 형식
+      Authorization: '...', // '인증토큰'
+    },
+  });
+  ```
