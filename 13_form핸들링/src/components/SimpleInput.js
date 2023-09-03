@@ -7,6 +7,29 @@ const SimpleInput = (props) => {
   const enteredNameIsValid = enteredName.trim() !== '';
   const nameInputIsInValid = !enteredNameIsValid && enteredNameTouched;
 
+  // Form 전체 유효성 검사
+  let formIsValid = false;
+
+  if (enteredNameIsValid) {
+    formIsValid = true;
+  } else {
+    formIsValid = false;
+  }
+
+  ////
+  // Form 전체 유효성 검사를 아래처럼 구현해도되지만
+  // 이 경우에는 useEffect를 사용하면 오히려 손해다.
+  //
+  // const [formIsValid, setFormIsValid] = useState(false);
+  // useEffect(() => {
+  //   // 모든 유효성 체크
+  //   if (enteredNameIsValid) {
+  //     setFormIsValid(true);
+  //   } else {
+  //     setFormIsValid(false);
+  //   }
+  // }, [enteredNameIsValid]);
+
   const handleNameInputChange = (e) => {
     setEnteredName(e.target.value);
   };
@@ -49,7 +72,7 @@ const SimpleInput = (props) => {
         )}
       </div>
       <div className='form-actions'>
-        <button>Submit</button>
+        <button disabled={!formIsValid}>Submit</button>
       </div>
     </form>
   );
