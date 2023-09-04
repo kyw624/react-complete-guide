@@ -1,21 +1,25 @@
-import { useState } from 'react';
+import useInput from '../hooks/useInput';
+
+const regExp = new RegExp(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'gi');
 
 const SimpleInput = (props) => {
-  const [enteredName, setEnteredName] = useState('');
-  const [enteredNameTouched, setEnteredNameTouched] = useState(false);
+  const {
+    value: enteredName,
+    isValid: enteredNameIsValid,
+    hasError: nameInputHasError,
+    handleInputChange: handleNameInputChange,
+    handleInputBlur: handleNameInputBlur,
+    reset: resetNameInput,
+  } = useInput((value) => value.trim() !== '');
 
-  const [enteredEmail, setEnteredEmail] = useState('');
-  const [enteredEmailTouched, setEnteredEmailTouched] = useState(false);
-
-  const enteredNameIsValid = enteredName.trim() !== '';
-  const nameInputIsInValid = !enteredNameIsValid && enteredNameTouched;
-
-  const regExp = new RegExp(
-    /^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/,
-    'gi'
-  );
-  const enteredEmailIsValid = regExp.test(enteredEmail.trim());
-  const emailInputIsInValid = !enteredEmailIsValid && enteredEmailTouched;
+  const {
+    value: enteredEmail,
+    isValid: enteredEmailIsValid,
+    hasError: emailInputHasError,
+    handleInputChange: handleEmailInputChange,
+    handleInputBlur: handleEmailInputBlur,
+    reset: resetEmailInput,
+  } = useInput((value) => regExp.test(value.trim()));
 
   // Form 전체 유효성 검사
   let formIsValid = false;
@@ -26,65 +30,22 @@ const SimpleInput = (props) => {
     formIsValid = false;
   }
 
-  ////
-  // Form 전체 유효성 검사를 아래처럼 구현해도되지만
-  // 이 경우에는 useEffect를 사용하면 오히려 손해다.
-  //
-  // const [formIsValid, setFormIsValid] = useState(false);
-  // useEffect(() => {
-  //   // 모든 유효성 체크
-  //   if (enteredNameIsValid) {
-  //     setFormIsValid(true);
-  //   } else {
-  //     setFormIsValid(false);
-  //   }
-  // }, [enteredNameIsValid]);
-
-  const handleNameInputChange = (e) => {
-    setEnteredName(e.target.value);
-  };
-
-  const handleEmailInputChange = (e) => {
-    setEnteredEmail(e.target.value);
-  };
-
-  // 인풋이 포커스를 잃은 경우
-  const handleInputBlur = (target, e) => {
-    if (target === 'name') {
-      setEnteredNameTouched(true);
-      return;
-    }
-
-    if (target === 'email') {
-      setEnteredEmailTouched(true);
-      return;
-    }
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    setEnteredNameTouched(true);
-    setEnteredEmailTouched(true);
 
     if (!enteredNameIsValid || !enteredEmailIsValid) {
       return;
     }
 
-    // 입력값 초기화에는 state 활용
-    setEnteredName('');
-    setEnteredEmail('');
-
-    // 올바른 값 제출 시 에러로 인한 상태 초기화
-    setEnteredNameTouched(false);
-    setEnteredEmailTouched(false);
+    resetNameInput();
+    resetEmailInput();
   };
 
-  const nameInputClasses = nameInputIsInValid
+  const nameInputClasses = nameInputHasError
     ? 'form-control invalid'
     : 'form-control';
 
-  const emailInputClasses = emailInputIsInValid
+  const emailInputClasses = emailInputHasError
     ? 'form-control invalid'
     : 'form-control';
 
@@ -97,10 +58,10 @@ const SimpleInput = (props) => {
           type='text'
           id='name'
           onChange={handleNameInputChange}
-          onBlur={handleInputBlur.bind(null, 'name')}
+          onBlur={handleNameInputBlur}
           value={enteredName}
         />
-        {nameInputIsInValid && (
+        {nameInputHasError && (
           <p className='error-text'>Name must not be empty.</p>
         )}
       </div>
@@ -112,10 +73,10 @@ const SimpleInput = (props) => {
           type='text'
           id='email'
           onChange={handleEmailInputChange}
-          onBlur={handleInputBlur.bind(null, 'email')}
+          onBlur={handleEmailInputBlur}
           value={enteredEmail}
         />
-        {emailInputIsInValid && (
+        {emailInputHasError && (
           <p className='error-text'>Please enter a valid email.</p>
         )}
       </div>
