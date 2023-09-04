@@ -1,6 +1,6 @@
 import useInputPractice from '../hooks/useInputPractice';
 
-const regExp = new RegExp(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'gi');
+const regExp = new RegExp(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'i');
 
 const isNotEmpty = (value) => value.trim() !== '';
 const isEmail = (value) => regExp.test(value.trim());
