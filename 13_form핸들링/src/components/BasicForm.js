@@ -2,41 +2,38 @@ import useInputPractice from '../hooks/useInputPractice';
 
 const regExp = new RegExp(/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/, 'gi');
 
+const isNotEmpty = (value) => value.trim() !== '';
+const isEmail = (value) => regExp.test(value.trim());
+
 const BasicForm = (props) => {
   const {
-    value: enteredFirstName,
+    value: firstNameValue,
     isValid: firstNameIsValid,
     hasError: firstNameInputHasError,
     handleInputChange: handleFirstNameInputChange,
     handleInputBlur: handleFirstNameInputBlur,
     reset: resetFirstNameInput,
-  } = useInputPractice((value) => value.trim() !== '');
+  } = useInputPractice(isNotEmpty);
 
   const {
-    value: enteredLastName,
+    value: lastNameValue,
     isValid: lastNameIsValid,
     hasError: lastNameInputHasError,
     handleInputChange: handleLastNameInputChange,
     handleInputBlur: handleLastNameInputBlur,
     reset: resetLastNameInput,
-  } = useInputPractice((value) => value.trim() !== '');
+  } = useInputPractice(isNotEmpty);
 
   const {
-    value: enteredEmail,
+    value: emailValue,
     isValid: emailIsValid,
     hasError: emailInputHasError,
     handleInputChange: handleEmailInputChange,
     handleInputBlur: handleEmailInputBlur,
     reset: resetEmailInput,
-  } = useInputPractice((value) => regExp.test(value.trim()));
+  } = useInputPractice(isEmail);
 
-  let formIsValid = false;
-
-  if (firstNameIsValid && lastNameIsValid && emailIsValid) {
-    formIsValid = true;
-  } else {
-    formIsValid = false;
-  }
+  const formIsValid = firstNameIsValid && lastNameIsValid && emailIsValid;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -71,7 +68,7 @@ const BasicForm = (props) => {
           <input
             type='text'
             id='first-name'
-            value={enteredFirstName}
+            value={firstNameValue}
             onChange={handleFirstNameInputChange}
             onBlur={handleFirstNameInputBlur}
           />
@@ -86,7 +83,7 @@ const BasicForm = (props) => {
           <input
             type='text'
             id='last-name'
-            value={enteredLastName}
+            value={lastNameValue}
             onChange={handleLastNameInputChange}
             onBlur={handleLastNameInputBlur}
           />
@@ -102,7 +99,7 @@ const BasicForm = (props) => {
         <input
           type='text'
           id='email'
-          value={enteredEmail}
+          value={emailValue}
           onChange={handleEmailInputChange}
           onBlur={handleEmailInputBlur}
         />
