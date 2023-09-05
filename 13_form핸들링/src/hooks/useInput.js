@@ -27,7 +27,7 @@ const inputStateReducer = (state, action) => {
       return initialInputState;
 
     default:
-      return initialInputState;
+      return state;
   }
 };
 
