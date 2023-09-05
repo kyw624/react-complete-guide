@@ -70,6 +70,10 @@ const cartReducer = (state, action) => {
       };
     }
 
+    case 'RESET_ITEM': {
+      return defaultCartState;
+    }
+
     default:
       throw new Error(`Unhandled action type: ${action.type}`);
   }
@@ -86,11 +90,18 @@ const CartProvider = (props) => {
     dispatch({ type: 'REMOVE_ITEM', payload: id });
   };
 
+  const handleResetItem = () => {
+    console.log('BEFORE:', cartState);
+    dispatch({ type: 'RESET_ITEM' });
+    console.log('AFTER:', cartState);
+  };
+
   const cartContext = {
     items: cartState.items,
     totalAmount: cartState.totalAmount,
     addItem: handleAddItem,
     removeItem: handleRemoveItem,
+    resetItem: handleResetItem,
   };
 
   return (
