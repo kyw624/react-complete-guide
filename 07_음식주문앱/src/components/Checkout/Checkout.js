@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 
 import useInput from '../hooks/useInput';
+import classes from './Checkout.module.css';
 
 const isEmpty = (value) => value !== '';
 const regExp = new RegExp(/^[0-9]{2,3}-[0-9]{3,4}-[0-9]{4}$/);
@@ -52,9 +53,10 @@ const Checkout = (props) => {
   return (
     <form onSubmit={handleSubmit}>
       {/* Name: string */}
-      <div>
+      <div className={classes.input}>
         <label htmlFor='name'>Name</label>
         <input
+          className={nameHasError ? classes.invalid : ''}
           type='text'
           id='name'
           onChange={nameInputChange}
@@ -65,9 +67,10 @@ const Checkout = (props) => {
       </div>
 
       {/* Phone number: number */}
-      <div>
+      <div className={classes.input}>
         <label htmlFor='phone'>Tel</label>
         <input
+          className={phoneHasError ? classes.invalid : ''}
           type='text'
           id='phone'
           onChange={phoneInputChange}
@@ -75,16 +78,17 @@ const Checkout = (props) => {
           value={phoneValue}
         />
         {phoneHasError && (
-          <p>전화번호 형식에 어긋납니다. ( 00(0)-000(0)-0000 )</p>
+          <p>전화번호 형식에 어긋납니다. ex) 12(3)-123(4)-1234</p>
         )}
       </div>
 
       {/* Signature: checkbox */}
-      <div>
+      <div className={classes.input}>
         <label htmlFor='signature'>Signature</label>
         <input type='checkbox' id='signature' onClick={handleCheckInput} />
         {!isSigned && <p>서명이 필요합니다.</p>}
       </div>
+
       <button disabled={!formIsValid}>Submit</button>
     </form>
   );
