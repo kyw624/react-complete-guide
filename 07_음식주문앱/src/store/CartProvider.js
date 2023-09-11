@@ -91,9 +91,7 @@ const CartProvider = (props) => {
   };
 
   const handleResetItem = () => {
-    console.log('BEFORE:', cartState);
     dispatch({ type: 'RESET_ITEM' });
-    console.log('AFTER:', cartState);
   };
 
   const cartContext = {
