@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 
 import useInput from '../hooks/useInput';
+import CartContext from '../../store/cart-context';
 import classes from './Checkout.module.css';
 
 const isEmpty = (value) => value !== '';
@@ -40,6 +41,42 @@ const Checkout = (props) => {
     formIsValid = false;
   }
 
+  const cartCtx = useContext(CartContext);
+
+  const saveOrder = async (orderInfo) => {
+    const now = new Date();
+    const hh = now.getHours();
+    const mm = now.getMinutes();
+    const ss = now.getSeconds();
+
+    const orderDate = now.toISOString().split('T')[0];
+    const orderTime = `${hh < 10 ? `0${hh}` : hh}:${mm < 10 ? `0${mm}` : mm}:${
+      ss < 10 ? `0${ss}` : ss
+    }`;
+
+    const newOrderInfo = {
+      ...orderInfo,
+      orderTime,
+      orderDate,
+    };
+
+    try {
+      await fetch(
+        'https://react-food-order-app-4c35a-default-rtdb.asia-southeast1.firebasedatabase.app/orders.json',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newOrderInfo),
+        }
+      );
+    } catch (error) {
+      console.log('Save order Error!');
+    }
+    return;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -48,10 +85,21 @@ const Checkout = (props) => {
     }
 
     props.onSubmit([nameValue, phoneValue]); // 영수증 작성을 위한 정보
+
+    // 주문서 데이터베이스에 POST
+    const orderInfo = {
+      items: cartCtx.items,
+      totalAmount: +cartCtx.totalAmount.toFixed(2),
+      name: nameValue,
+      phoneNumber: phoneValue,
+    };
+
+    saveOrder(orderInfo);
   };
 
   return (
     <form onSubmit={handleSubmit}>
+      <div className={classes.order}>📄Order Sheet</div>
       {/* Name: string */}
       <div className={classes.input}>
         <label htmlFor='name'>Name</label>
