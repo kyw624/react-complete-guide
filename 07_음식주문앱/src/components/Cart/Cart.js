@@ -56,8 +56,6 @@ const Cart = (props) => {
 
   // 제출 시 영수증 정보
   const handleSubmitButtonClick = (checkoutInfo) => {
-    console.log(cartCtx.items);
-
     const [name, phoneNumber] = checkoutInfo;
 
     const receiptItems = cartCtx.items.map((item) => {
@@ -72,8 +70,6 @@ const Cart = (props) => {
     console.log('------------------------');
     console.log('결제자:', name);
     console.log('전화번호:', phoneNumber);
-
-    // 주문서 데이터베이스에 POST
 
     // 완료된 주문 리셋
     cartCtx.resetItem();
@@ -99,7 +95,6 @@ const Cart = (props) => {
           </button>
         )}
       </div>
-      {/* <Checkout onSubmit={handleSubmitButtonClick} /> */}
       {isCheckout && <Checkout onSubmit={handleSubmitButtonClick} />}
     </Modal>
   );
