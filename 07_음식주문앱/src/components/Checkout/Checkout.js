@@ -130,6 +130,20 @@ const Checkout = (props) => {
         )}
       </div>
 
+      {/* Postal Code: string */}
+      <div className={classes.input}>
+        <label htmlFor='postal'>Postal Code</label>
+        <input
+          className={nameHasError ? classes.invalid : ''}
+          type='text'
+          id='postal'
+          onChange={nameInputChange}
+          onBlur={nameInputBlur}
+          value={nameValue}
+        />
+        {nameHasError && <p>우편번호를 입력해주세요.</p>}
+      </div>
+
       {/* Signature: checkbox */}
       <div className={classes.input}>
         <label htmlFor='signature'>Signature</label>
@@ -137,6 +151,9 @@ const Checkout = (props) => {
         {!isSigned && <p>서명이 필요합니다.</p>}
       </div>
 
+      <button type='button' onClick={props.onCancel}>
+        Cancel
+      </button>
       <button disabled={!formIsValid}>Submit</button>
     </form>
   );

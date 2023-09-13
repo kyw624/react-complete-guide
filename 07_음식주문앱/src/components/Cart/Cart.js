@@ -34,6 +34,10 @@ const Cart = (props) => {
     cartCtx.removeItem(id);
   };
 
+  const handleOrder = () => {
+    setIsCheckout(true);
+  };
+
   const cartItems = (
     <ul className={classes['cart-items']}>
       {cartCtx.items.map((item) => (
@@ -48,11 +52,6 @@ const Cart = (props) => {
       ))}
     </ul>
   );
-
-  const handleCheckout = () => {
-    console.log('checkout');
-    setIsCheckout(true);
-  };
 
   // 제출 시 영수증 정보
   const handleSubmitButtonClick = (checkoutInfo) => {
@@ -78,6 +77,19 @@ const Cart = (props) => {
     props.onClose();
   };
 
+  const modalActions = (
+    <div className={classes.actions}>
+      <button className={classes['button--alt']} onClick={props.onClose}>
+        Close
+      </button>
+      {hasItems && (
+        <button className={classes.button} onClick={handleOrder}>
+          Order
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <Modal onClose={props.onClose}>
       {cartItems}
@@ -85,17 +97,10 @@ const Cart = (props) => {
         <span>Total Amount</span>
         <span>{totalAmount}</span>
       </div>
-      <div className={classes.actions}>
-        <button className={classes['button--alt']} onClick={props.onClose}>
-          Close
-        </button>
-        {hasItems && (
-          <button className={classes.button} onClick={handleCheckout}>
-            Order
-          </button>
-        )}
-      </div>
-      {isCheckout && <Checkout onSubmit={handleSubmitButtonClick} />}
+      {isCheckout && (
+        <Checkout onCancel={props.onClose} onSubmit={handleSubmitButtonClick} />
+      )}
+      {!isCheckout && modalActions}
     </Modal>
   );
 };
