@@ -14,37 +14,35 @@ const AvailableMeals = () => {
       setIsLoading(true);
       setError(null);
 
-      try {
-        const response = await fetch(
-          'https://react-food-order-app-4c35a-default-rtdb.asia-southeast1.firebasedatabase.app/meals.json'
-        );
+      const response = await fetch(
+        'https://react-food-order-app-4c35a-default-rtdb.asia-southeast1.firebasedatabase.app/meals.json'
+      );
 
-        if (!response.ok) {
-          throw new Error('Response error!');
-        }
+      if (!response.ok) {
+        throw new Error('Response error!');
+      }
 
-        const data = await response.json();
+      const data = await response.json();
 
-        const loadedMeals = [];
+      const loadedMeals = [];
 
-        for (const key in data) {
-          loadedMeals.push({
-            id: key,
-            name: data[key].name,
-            description: data[key].description,
-            price: data[key].price,
-          });
-        }
-
-        setMeals(loadedMeals);
-      } catch (error) {
-        setError(error.message);
+      for (const key in data) {
+        loadedMeals.push({
+          id: key,
+          name: data[key].name,
+          description: data[key].description,
+          price: data[key].price,
+        });
       }
 
       setIsLoading(false);
+      setMeals(loadedMeals);
     };
 
-    fetchMeals();
+    fetchMeals().catch((error) => {
+      setIsLoading(false);
+      setError(error.message);
+    });
   }, []);
 
   let mealsList = <p>Found no meals.</p>;
@@ -61,15 +59,18 @@ const AvailableMeals = () => {
     ));
   }
 
-  if (error) {
-    console.log(error);
-    mealsList = <p>{error}</p>;
-  }
-
   if (isLoading) {
     return (
       <section className={classes.MealsLoading}>
         <p>Loading...</p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className={classes.MealsError}>
+        <p>{error}</p>
       </section>
     );
   }
