@@ -1171,3 +1171,33 @@
   **2. `ref`**
 
   - 값이 제출 시 한번만 필요할 때
+
+---
+
+## 7. 음식주문 앱 http & form 작업
+
+> Firebase의 실시간 데이터베이스 사용
+
+### 1. Checkout & Order Form 추가
+
+### 2. Orders 제출 시 백엔드 요청
+
+### 3. Meals 데이터 Fetching
+
+---
+
+<br>
+
+- **요구사항**
+
+1. 더미 데이터 수동으로 데이터베이스에 이동 ( O )
+
+2. Meals GET ( O )
+
+3. 결제 Form ( O )
+
+4. Order GET, POST ( O )
+
+5. 주문서(영수증) 보여주기 ( )
+
+etc. 음식 추가 - Meals POST ( )
