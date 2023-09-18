@@ -1201,3 +1201,519 @@
 5. 주문서(영수증) 보여주기 ( )
 
 etc. 음식 추가 - Meals POST ( )
+
+---
+
+## 8. 리덕스
+
+### 1. 리덕스란? 왜 사용하는지?
+
+### 2. 리덕스 기초와 사용법
+
+### 3. Redux Toolkit
+
+---
+
+<br>
+
+- **리액트에서의 3가지 상태 정의**  
+  리액트에서 상태를 3가지로 정의하자면
+
+  1. Local State  
+     데이터가 변경되면 하나의 컴포넌트에 영향을 미치는 state.
+
+     - 사용자 인풋 state
+     - 필드 on/off 토글 버튼
+
+     > `useState` 또는  
+     > 약간 복잡하다면 `useReducer` 사용
+
+  2. Cross-Component State  
+     다수의 컴포넌트에 영향을 미치는 state.
+
+     - 모달 컴포넌트
+
+     > `prop chains(drilling)`를 필요로 함.
+
+  3. App-Wide State  
+     애플리케이션의 모든 컴포넌트에 영향을 미치는 state.
+
+     - 사용자 인증
+
+     > `prop chains(drilling)`를 필요로 함.
+
+  - `리덕스`는 Cross-Component state, App-Wide state를 위한 상태 관리 시스템이다.
+
+<br>
+
+- **What is "Redux"?**  
+  리액트 컨텍스트의 대안
+
+  - 컨텍스트의 잠재적인 단점
+
+    1. 설정과 상태 관리가 복잡해질 수 있다.
+
+       > 심하게 중첩된 코드
+
+       ```jsx
+       // 이것을 해결하기 위해 하나의 큰 컨텍스트로 합친다면 관리가 힘들어짐.
+
+       return (
+         <AuthContextProvider>
+           <ThemeContextProvider>
+             <UIInteractionContextProvider>
+              <MultiStepFormContextProvider>
+                <UserRegistration />
+             </UIInteractionContextProvider>
+           </ThemeContextProvider>
+         </AuthContextProvider>
+       );
+       ```
+
+    2. 성능 이슈
+       "데이터가 자주 변경되는 경우에는 좋지 않다"는 리액트 팀원의 공식적인 언급이 있다.
+
+<br>
+
+- **리덕스의 작동 방식**
+
+  - 리덕스의 규칙
+
+    1. 절대로 저장된 데이터를 직접 조작하지 않는다.
+    2. 데이터는 절대로 반대 방향으로 흐르지 않는다.
+
+  1. `Store`  
+     하나의 중앙 데이터 저장소
+
+     - 전체 애플리케이션의 모든 상태를 저장한다.
+     - 직접 관리할 필요 X.
+     - 데이터가 변경되면 컴포넌트는 그걸 감지해서 업데이트된다.
+       > 해당 컴포넌트 구독 필요
+
+  2. `리듀서 함수`  
+     데이터의 변경을 담당
+
+     - `useReducer` 에서의 리듀서가 아닌 일반적인 프로그래밍 개념의 리듀서 함수이다.
+       > 입력을 변환해 새로운 출력, 결과를 뱉어내는 함수
+     - 리듀서 함수는 `순수 함수`로,  
+       동일한 입력에는 항상 같은 값을 출력해야하며,  
+        함수 안에서는 어떠한 부수적인 효과도 없어야 한다.
+
+     1. 컴포넌트에서 액션을 리듀서로 전달해 작업을 수행한다.
+     2. 그 후 리듀서는 새로운 상태를 뱉어내고 Store의 기존 상태를 업데이트한다.
+     3. store의 상태가 업데이트되면 구독중인 컴포넌트가 알림을 받아 UI 업데이트가 이뤄진다.
+
+<br>
+
+- **store 생성 예시**
+
+  > 카운터 예제
+
+  ```js
+  // src/store/index.js
+  const redux = require('redux');
+
+  const initailState = {
+    counter: 0,
+  };
+
+  const counterReducer = (state = initailState, action) => {
+    switch (action.type) {
+      case 'INCREMENT':
+        return { counter: state.counter + 1 };
+
+      case 'DECREMENT':
+        return { counter: state.counter - 1 };
+
+      default:
+        return state;
+    }
+  };
+
+  const store = redux.createStore(counterReducer);
+
+  export default store;
+  ```
+
+  > App에 store 제공
+
+  ```js
+  // index.js
+  import React from 'react';
+  import ReactDOM from 'react-dom/client';
+  import { Provider } from 'react-redux'; // import
+
+  import './index.css';
+  import App from './App';
+  import store from './store/index'; // import
+
+  const root = ReactDOM.createRoot(document.getElementById('root'));
+  root.render(
+    <Provider store={store}>
+      <App />
+    </Provider>
+  );
+  ```
+
+<br>
+
+- **`useSelector`**  
+  리덕스 스토어를 활용하기 위한 훅으로 react-redux가 실행함.
+
+  - `useStore` 훅도 있지만 `useSelector` 사용을 권장.
+
+    > 클래스 컴포넌트에서는 connect 사용 (react-redux)
+
+  - 앱에 store를 제공한 상태에서 특정 컴포넌트에 특정 state를 사용하고 싶을 때 사용
+
+  - `useSelector`를 사용하면 `react-redux`가 해당 컴포넌트의 구독 설정을 자동으로 해줌.
+
+  - 컴포넌트를 제거하거나 어떤 이유에서든 DOM에서 제거되면 `react-redux`가 자동으로 구독을 해지함.
+
+  - 예시
+
+    > Counter 컴포넌트에서 counter state 가져오기
+
+    ```jsx
+    // Counter.js
+
+    import { useSelector } from 'react-reedux';
+
+    import classes from './Counter.module.css';
+
+    const Counter = () => {
+      // 스토어에서 변경될 때마다 자동으로 업데이트되고 최신 카운터를 받게됨.
+      const counter = useSelector((state) => state.counter);
+
+      const toggleCounterHandler = () => {};
+
+      return (
+        <main className={classes.counter}>
+          <h1>Redux Counter</h1>
+          <div className={classes.value}>-- COUNTER VALUE --</div>
+          <button onClick={toggleCounterHandler}>Toggle Counter</button>
+        </main>
+      );
+    };
+
+    export default Counter;
+    ```
+
+<br>
+
+- **`useDispatch`**  
+  리덕스 스토어에 액션을 전달할 때 사용하는 훅
+
+  1. 먼저 `useDispatch` 훅으로 `dispatch` 변수 선언
+
+     ```js
+     const dispatch = useDispatch();
+     ```
+
+  2. 해당 변수로 액션 전달
+
+     ```js
+     const handleIncrement = () => {
+       dispatch({ type: 'INCREMENT' });
+     };
+     ```
+
+<br>
+
+- **`connect`**  
+  클래스 컴포넌트에서 스토어에 접근하기 위한 함수.
+
+  `export default connect(arg1, arg2)(Component)`
+
+  1. 2개의 인자를 받고 함수를 반환한다.
+
+     > key name이 prop name
+
+     - mapStateToProps (arg1): 상태를 받는 함수
+     - mapDispatchToProps (arg2): 액션을 전달하는 함수
+
+     ```js
+     // Counter.js
+
+     class Counter {
+       // ...
+     }
+
+     // 상태를 받는 함수
+     const mapStateToProps = (state) => {
+       return {
+         counter: state.counter,
+       };
+     };
+
+     // 액션을 받는 함수
+     const mapDispatchToProps = (dispatch) => {
+       return {
+         increment: () => dispatch({ type: 'INCREMENT' }),
+         decrement: () => dispatch({ type: 'DECREMENT' }),
+       };
+     };
+
+     // 반환한 함수에 컴포넌트를 인자로 넘김
+     export default connect(mapStateToProps, mapDispatchToProps)(Counter);
+     ```
+
+  2. 핸들러 바인딩
+
+     ```js
+     class Counter {
+       handleIncrement() {
+         // mapDispatchToProps
+         this.props.increment();
+       }
+
+       handleDecrement() {
+         // mapDispatchToProps
+         this.props.decrement();
+       }
+
+       // ...
+
+       render() {
+         return (
+           // state 가져오기
+           <div>{this.props.counter}</div>
+           <div>
+             <!-- 핸들러 바인딩 -->
+             <button onClick={this.handleIncrement.bind(this)}>
+               Increment
+             </button>
+             <button onClick={this.handleDecrement.bind(this)}>
+               Decrement
+             </button>
+           </div>
+         );
+       }
+     }
+     ```
+
+<br>
+
+- **Redux Toolkit**  
+   리덕스를 조금 더 편리하게 사용하게 해주는 라이브러리
+
+  - 내부적으로 `immer`를 사용해 따로 코드를 작성하지 않아도 기존 상태의 불변성을 지켜준다.
+    > ex) return state.counter++  
+    > 이렇게 작성이 가능하다.
+
+  1. `createSlice`: 이름, 초기상태, 리듀서를 기능 중심으로 묶어서 하나의 슬라이스로 자동으로 생성해 하나의 파일에서 관리하기 용이해진다.
+
+     > 카운터 슬라이스 생성
+
+     ```js
+     // store/index.js
+
+     import { createSlice } from '@reduxjs/toolkit';
+
+     const initialState = {
+       counter: 0,
+       showCounter: true,
+     };
+
+     const counterSlice = createSlice({
+       name: 'counter',
+       initialState,
+       reducers: {
+         increment(state) {
+           // Redux toolkit과 createSlice를 사용하면 기존 상태를 바꿀 수 없다.
+           state.counter++;
+         },
+         decrement(state) {
+           state.counter--;
+         },
+         increase(state, action) {
+           state.counter = state.counter + action.payload;
+         },
+         toggleCounter(state) {
+           state.showCounter = !state.showCounter;
+         },
+       },
+     });
+     ```
+
+     > store에서 여러개의 slice reducer 등록
+
+     모든 리듀서들을 하나의 큰 리듀서로 병합해준다.
+
+     ```js
+     // store/index.js
+
+     import { configureStore } from '@reduxjs/toolkit';
+
+     const store = configureStore({
+       reducer: {
+         // key: slice.reducer
+         counter: counterSlice.reducer,
+         auth: authSlice.reducer,
+       },
+     });
+     ```
+
+     - 다중 슬라이스에서 `useSelector`로 값 가져오기
+
+       > 스토어에 리듀서를 등록할 때의 key값을 거쳐서 호출한다.
+
+       ```js
+       const show = useSelector((state) => state.counter.showCounter);
+       ```
+
+<br>
+
+- **store 파일 분할**
+
+  기존의 코드를 여러개의 기능별로 여러 파일로 분할해 코드가 더 깔끔하고 관리하기 용이해짐.
+
+  > 기존 코드
+
+  ```js
+  // store/index.js
+
+  import { createSlice, configureStore } from '@reduxjs/toolkit';
+
+  const initialCounterState = {
+    counter: 0,
+    showCounter: true,
+  };
+
+  // counter, showCounter를 세트로 하나의 slice 생성
+  const counterSlice = createSlice({
+    name: 'counter',
+    initialState: initialCounterState,
+    reducers: {
+      increment(state) {
+        // Redux toolkit과 createSlice를 사용하면 기존 상태를 바꿀 수 없다.
+        state.counter++;
+      },
+      decrement(state) {
+        state.counter--;
+      },
+      increase(state, action) {
+        state.counter = state.counter + action.payload;
+      },
+      toggleCounter(state) {
+        state.showCounter = !state.showCounter;
+      },
+    },
+  });
+
+  const initialAuthState = {
+    isAuthenticated: false,
+  };
+
+  const authSlice = createSlice({
+    name: 'authentication',
+    initialState: initialAuthState,
+    reducers: {
+      login(state) {
+        state.isAuthenticated = true;
+      },
+      logout(state) {
+        state.isAuthenticated = false;
+      },
+    },
+  });
+
+  // 여러개의 리듀서를 병합해 스토어 생성
+  const store = configureStore({
+    reducer: {
+      counter: counterSlice.reducer,
+      auth: authSlice.reducer,
+    },
+  });
+
+  export const counterActions = counterSlice.actions;
+  export const authActions = authSlice.actions;
+
+  export default store;
+  ```
+
+  <br>
+
+  > 분할한 개선된 코드
+
+  ```js
+  // store/index.js
+
+  import { configureStore } from '@reduxjs/toolkit';
+
+  import counterSlice from './counter';
+  import authSlice from './auth';
+
+  // 여러개의 리듀서를 병합해 스토어 생성
+  const store = configureStore({
+    reducer: {
+      counter: counterSlice,
+      auth: authSlice,
+    },
+  });
+
+  export default store;
+  ```
+
+  ```js
+  // store/counter.js
+
+  import { createSlice } from '@reduxjs/toolkit';
+
+  const initialCounterState = {
+    counter: 0,
+    showCounter: true,
+  };
+
+  // counter, showCounter를 세트로 하나의 slice 생성
+  const counterSlice = createSlice({
+    name: 'counter',
+    initialState: initialCounterState,
+    reducers: {
+      increment(state) {
+        // Redux toolkit과 createSlice를 사용하면 기존 상태를 바꿀 수 없다.
+        state.counter++;
+      },
+      decrement(state) {
+        state.counter--;
+      },
+      increase(state, action) {
+        state.counter = state.counter + action.payload;
+      },
+      toggleCounter(state) {
+        state.showCounter = !state.showCounter;
+      },
+    },
+  });
+
+  export const counterActions = counterSlice.actions;
+
+  export default counterSlice.reducer;
+  ```
+
+  ```js
+  // store/auth.js
+
+  import { createSlice } from '@reduxjs/toolkit';
+
+  const initialAuthState = {
+    isAuthenticated: false,
+  };
+
+  const authSlice = createSlice({
+    name: 'authentication',
+    initialState: initialAuthState,
+    reducers: {
+      login(state) {
+        state.isAuthenticated = true;
+      },
+      logout(state) {
+        state.isAuthenticated = false;
+      },
+    },
+  });
+
+  export const authActions = authSlice.actions;
+
+  export default authSlice.reducer;
+  ```
