@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@babel/types": "^7.22.17",
+    "@reduxjs/toolkit": "^1.9.5",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.6.3",
@@ -11,7 +12,6 @@
     "react-dom": "^18.0.0",
     "react-redux": "^8.1.2",
     "react-scripts": "^5.0.1",
-    "redux": "^4.2.1",
     "web-vitals": "^1.1.0"
   },
   "scripts": {
