@@ -5,7 +5,7 @@ import Cart from './components/Cart/Cart';
 import Layout from './components/Layout/Layout';
 import Products from './components/Shop/Products';
 import Notification from './components/UI/Notification';
-import { sendCartData } from './store/cartActions';
+import { fetchCartData, sendCartData } from './store/cartActions';
 
 export const endPoint =
   'https://react-redux-tutorial-cd2e6-default-rtdb.asia-southeast1.firebasedatabase.app/';
@@ -19,13 +19,19 @@ function App() {
   const notification = useSelector((state) => state.ui.notification);
 
   useEffect(() => {
+    dispatch(fetchCartData());
+  }, [dispatch]);
+
+  useEffect(() => {
     if (isInitial) {
       isInitial = false;
       return;
     }
 
-    // 함수를 디스패치
-    dispatch(sendCartData(cart));
+    if (cart.changed) {
+      // 함수를 디스패치
+      dispatch(sendCartData(cart));
+    }
   }, [cart, dispatch]);
 
   return (
