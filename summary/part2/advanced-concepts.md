@@ -1717,3 +1717,92 @@ etc. 음식 추가 - Meals POST ( )
 
   export default authSlice.reducer;
   ```
+
+---
+
+## 9. 고급 리덕스
+
+### 1. 리덕스의 비동기 처리 방법
+
+### 2. 코드를 어디에 둘 것인가?
+
+### 3. 리덕스 DevTools
+
+---
+
+<br>
+
+- **리덕스의 비동기 처리와 부수효과**
+
+  - 리듀서 함수란 동일한 인풋에 대해 항상 동일한 아웃풋을 생성하는 순수하고, 부수 효과가 없는 동기식 함수이다.
+
+    > 리듀서 내부에는 부수 효과 절대 X
+
+  - 그렇다면 리덕스에서 작업을 할 때 비동기 처리나 부수 효과가 있는 코드를 어디에 넣어야할까?
+
+    1. 컴포넌트 내부 (`useEffect()` 사용)
+
+    2. 액션 생성 함수 (`action creators`)
+
+<br>
+
+- **코드를 어디에 둘 것인가?**
+
+  `Fat Reducers` vs `Fat Components` vs `Fat Actions`
+
+  - 코드의 위치를 고려할 때는 다음을 구별해야 한다.
+    1. 부수효과가 없는 코드
+    2. 부수효과가 **있는** 코드
+    3. 비동기식 코드
+
+  1. 동기식 코드, 부수효과가 없는 코드를 다루는 경우
+
+     - 리듀서 선호
+     - 액션 생성 함수, 컴포넌트는 피할 것
+
+  2. 비동기식 코드, 부수효과가 있는 코드를 다루는 경우
+
+     - 액션 생성 함수, 컴포넌트 선호
+     - 리듀서는 절대 X
+
+<br>
+
+- **What is a Thunk?**  
+  다른 작업이 완료될 때까지 작업을 지연시키는 함수
+
+  - 리덕스는 액션 객체가 아닌 함수를 디스패치 하는 것으로 확인되면 해당 함수를 자동으로 실행한다.
+
+    ```js
+    // store/cart.js
+
+    const cartSlice = createSlice({
+      // ...
+    });
+
+    // 액션 생성 함수 내부에서 비동기 처리 로직
+    export const sendCartData = (cart) => {
+      // 자동으로 dispatch 인자 전달
+      return async (dispatch) => {
+        // 반환되어 자동으로 실행되는 함수에서 다시 디스패치
+        dispatch({
+          // ...
+        });
+      };
+    };
+
+    export const cartActions = cartSlice.actions;
+
+    export default cartSlice;
+
+    // App.js
+
+    function App() {
+      // ...
+
+      useEffect(() => {
+        dispatch(sendCartData(cart));
+      }, [cart, dispatch]);
+    }
+    ```
+
+
