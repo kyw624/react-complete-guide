@@ -5,8 +5,10 @@ import {
   // Route,
 } from 'react-router-dom';
 
-import Home from './pages/Home';
-import Products from './pages/Products';
+import HomePage from './pages/Home';
+import ProductsPage from './pages/Products';
+import RootLayout from './pages/Root';
+import ErrorPage from './pages/Error';
 
 // // JSX 코드 솔루션
 // const routeDefinitions = createRoutesFromElements(
@@ -20,8 +22,15 @@ import Products from './pages/Products';
 
 // React Router v6.4 ~ 객체 기반 솔루션
 const router = createBrowserRouter([
-  { path: '/', element: <Home /> },
-  { path: '/products', element: <Products /> },
+  {
+    path: '/',
+    element: <RootLayout />,
+    errorElement: <ErrorPage />,
+    children: [
+      { path: '/', element: <HomePage /> },
+      { path: '/products', element: <ProductsPage /> },
+    ],
+  },
 ]);
 
 function App() {
