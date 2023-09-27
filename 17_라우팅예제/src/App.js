@@ -24,13 +24,13 @@ import ProductDetailPage from './pages/ProductDetailPage';
 // React Router v6.4 ~ 객체 기반 솔루션
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: '/root',
     element: <RootLayout />,
     errorElement: <ErrorPage />,
     children: [
-      { path: '/', element: <HomePage /> },
-      { path: '/products', element: <ProductsPage /> },
-      { path: '/products/product1', element: <ProductDetailPage /> },
+      { path: '', element: <HomePage /> },
+      { path: 'products', element: <ProductsPage /> },
+      { path: 'products/:productId', element: <ProductDetailPage /> },
     ],
   },
 ]);
