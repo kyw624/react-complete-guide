@@ -5,10 +5,11 @@ import {
   // Route,
 } from 'react-router-dom';
 
-import HomePage from './pages/Home';
-import ProductsPage from './pages/Products';
-import RootLayout from './pages/Root';
-import ErrorPage from './pages/Error';
+import RootLayout from './pages/RootLayout';
+import ErrorPage from './pages/ErrorPage';
+import HomePage from './pages/HomePage';
+import ProductsPage from './pages/ProductsPage';
+import ProductDetailPage from './pages/ProductDetailPage';
 
 // // JSX 코드 솔루션
 // const routeDefinitions = createRoutesFromElements(
@@ -29,6 +30,7 @@ const router = createBrowserRouter([
     children: [
       { path: '/', element: <HomePage /> },
       { path: '/products', element: <ProductsPage /> },
+      { path: '/products/product1', element: <ProductDetailPage /> },
     ],
   },
 ]);
