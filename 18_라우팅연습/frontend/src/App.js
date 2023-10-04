@@ -24,7 +24,7 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import RootLayout from './pages/RootLayout';
 import HomePage from './pages/HomePage';
-import EventsPage from './pages/EventsPage';
+import EventsPage, { loader as eventsLoader } from './pages/EventsPage';
 import EventDetailPage from './pages/EventDetailPage';
 import NewEventPage from './pages/NewEventPage';
 import EditEventPage from './pages/EditEventPage';
@@ -43,16 +43,7 @@ const router = createBrowserRouter([
           {
             index: true,
             element: <EventsPage />,
-            loader: async () => {
-              const response = await fetch('http://localhost:8080/events');
-
-              if (!response.ok) {
-                // ...
-              } else {
-                const resData = await response.json();
-                return resData.events;
-              }
-            },
+            loader: eventsLoader, // 실제 로직은 페이지 컴포넌트에 있다. (포인터)
           },
           { path: ':someId', element: <EventDetailPage /> },
           { path: 'new', element: <NewEventPage /> },
