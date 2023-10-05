@@ -1805,4 +1805,690 @@ etc. 음식 추가 - Meals POST ( )
     }
     ```
 
+---
 
+## 10. SPA 다중 페이지 라우팅
+
+### 1. 라우팅 개요
+
+### 2. React-Router
+
+### 3. 데이터 Fetching & Submission
+
+---
+
+<br>
+
+- **React-Router로 라우팅 구현**
+
+  - 구성 단계 (React Router v6.4 ~)
+
+    1. 라우트 정의  
+       `createBrowserRouter`
+
+       > URL 및 경로에 대한 컴포넌트 정의
+
+       ```js
+       // App.js
+
+       import { createBrowserRouter } from 'react-router-dom';
+
+       import Home from './pages/Home';
+
+       const router = createBrowserRouter([
+         {
+           path: '/', // 도메인 뒤의 경로
+           element: '<Home />', // 불러올 컴포넌트
+         },
+         {
+           path: '/main',
+           element: '<Main />',
+         },
+         // ...
+       ]);
+
+       function App() {
+         return <div></div>;
+       }
+
+       export default App;
+       ```
+
+    2. 라우터 활성화 및 로딩  
+       `RouterProvider`
+
+       ```js
+       import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+
+       import Home from './pages/Home';
+
+       const router = createBrowserRouter([
+         {
+           path: '/',
+           element: <Home />,
+         },
+       ]);
+
+       function App() {
+         return <RouterProvider router={router} />;
+       }
+
+       export default App;
+       ```
+
+    3. 모든 대상 컴포넌트들과 네비게이션 제공 확인  
+       `Link`
+
+       1. Link는 뒤에서 a 요소를 렌더링하지만 기본적으로 그 요소에 대한 클릭을 감시한다.
+
+       2. 클릭했을 때 HTTP 요청을 전송하는 브라우저 기본 설정을 막는다.
+
+       3. 그 대신에 라우트 정의를 확인해 페이지를 업데이트하고 컨텐츠를 로딩하게 된다.
+
+       ```jsx
+       import { Link } from 'react-router-dom';
+
+       function Home() {
+         return (
+           <Link>
+             <div>My Home Page</div>
+             <p>
+               Go to <Link to='/products'>the list of products</Link>
+             </p>
+           </>
+         );
+       }
+
+       export default Home;
+       ```
+
+<br>
+
+- **Outlet으로 레이아웃 구성**  
+  페이지마다 공통적으로 보여줘야할 레이아웃이 있을 때 유용하다. (ex. 네비게이션)
+
+  - `Outlet` 부분에 children을 렌더링
+
+    ```js
+    // pages/Root.js
+
+    import { Outlet } from 'react-router-dom';
+
+    import MainNavigation from '../components/MainNavigation';
+
+    function RootLayout() {
+      return (
+        <>
+          <MainNavigation />
+          <main>
+            <Outlet />
+          </main>
+        </>
+      );
+    }
+
+    export default RootLayout;
+    ```
+
+    ```js
+    // App.js
+
+    const router = createBrowserRouter([
+      {
+        path: '/',
+        element: <RootLayout />,
+        children: [
+          { path: '/', element: <HomePage /> },
+          { path: '/products', element: <ProductsPage /> },
+        ],
+      },
+    ]);
+
+    function App() {
+      // ...
+    }
+    ```
+
+<br>
+
+- **에러 페이지 표시**  
+  지원하지 않는 경로로 접근했을 경우 등의 이유로 기본으로 제공되는 에러 페이지가 아닌 직접 제공할 수 있음
+
+  - router의 errorElement 프로퍼티에 에러 페이지 연결
+
+    ```js
+    const router = createBrowserRouter([
+      {
+        path: '/',
+        element: <RootLayout />,
+        errorElement: <ErrorPage />,
+        children: [
+          // ...
+        ],
+      },
+    ]);
+    ```
+
+<br>
+
+- **`NavLink`**  
+  `Link`와 똑같이 사용하지만 해당 링크가 활성중인지, 표시되도록 지원하기 위한 기능이 추가된 것
+
+  - className: 함수를 받는 프로퍼티로, a 태그에 추가할 CSS 클래스를 리턴해 활성 요소의 조건부 스타일 지정에 용이하다.
+
+    > 해당 함수는 자동으로 객체를 받는다.
+
+    ```js
+    <NavLink
+      to='/'
+      className={({ isActive }) => {
+        // isActive: 해당 링크의 활성 상태 (boolean)
+        isActive ? classes.active : undefined;
+      }}
+
+      // 인라인 스타일에도 활용 가능
+      // style={({ isActive }) => {
+      //   textAlign: isActive ? 'center' : 'left';
+      // }}
+    >
+      Home
+    </NavLink>
+    ```
+
+  - end: 기본적으로 `NavLink`는 설정된 경로로 시작하는 모든 경로들을 활성인 것으로 간주한다.
+
+    > end={true}를 지정하지 않으면 '/' 로 시작하는 모든 경로에 대해 적용이 된다.
+
+    ```js
+    <NavLink
+      to='/'
+      className={({ isActive }) => {
+        isActive ? classes.active : undefined;
+      }}
+      end // 기본값 true
+    >
+      Home
+    </NavLink>
+    ```
+
+<br>
+
+- **`useNavigate`**  
+  프로그램적(타이머 만료 등)으로 강제 페이지 이동을 할 때 용이하다.
+
+  ```js
+  import { Link, useNavigate } from 'react-router-dom';
+
+  function HomePage() {
+    const navigate = useNavigate();
+
+    function handleNavigate() {
+      navigate('/products');
+    }
+
+    return (
+      <>
+        <h1>My Home Page</h1>
+        <p>
+          Go to <Link to='/procuts'>Products Page</Link>
+        </p>
+        <p>
+          <button onClick={handleNavigate}>Navigate</button>
+        </p>
+      </>
+    );
+  }
+  ```
+
+<br>
+
+- **동적 라우팅**  
+  제품 리스트의 여러개의 제품 상세 페이지를 표현할 때 일일히 path를 지정해줘야하는데 이를 지원한다.
+
+  - `:id`: 콜론은 Path Parameter가 올 것을 의미한다.
+
+    > 콜론 뒤에 임의의 이름을 지정해줄 수 있다.  
+    > ex) :productId
+
+    ```js
+    // products/product1
+    // products/product2
+    // ...
+
+    {
+      path: '/products/:productId',
+      element: <ProductDetailPage />
+    }
+    ```
+
+    - products/ 뒤에 어떤 값이 오던 라우팅된다.
+
+  - `useParams()`: URL의 파라미터를 가져올 수 있다.
+
+    ```js
+    const params = useParams();
+
+    return (
+      <>
+        <h1>Product Details!</h1>
+        // URL: procuts/p1
+        {params.productId} // p1이 표시됨.
+      </>
+    );
+    ```
+
+<br>
+
+- **상대경로에서의 뒤로가기 구현**  
+  Link의 relative 프로퍼티 활용
+
+  - 라우트 정의 (상대경로)
+
+    ```js
+    const router = createBrowserRouter([
+      {
+        path: '/root',
+        element: <RootLayout />,
+        errorElement: <ErrorPage />,
+        children: [
+          { path: '', element: <HomePage /> },
+          { path: 'products', element: <ProductsPage /> },
+          { path: 'products/:productId', element: <ProductDetailPage /> },
+        ],
+      },
+    ]);
+    ```
+
+  - 잘못된 구현  
+    `<Link to='..'>Back</Link>`
+
+    ```js
+    import { Link, useParams } from 'react-router-dom';
+
+    function ProductDetailPage() {
+      const params = useParams();
+
+      return (
+        <>
+          <h1>Product Details!</h1>
+          <p>{params.productId}</p>
+          <p>
+            <Link to='..'>Back</Link>
+          </p>
+        </>
+      );
+    }
+
+    export default ProductDetailPage;
+    ```
+
+    - `'..'` 은 터미널에서처럼 이전으로 가라는 의미
+
+    - `<ProductsPage />`, `<ProductDetailPage />` 모두 `/root`의 자식이면서 서로 형제 관계이다.
+
+    - 형제이므로 이렇게 구현하면 `<ProductsPage />`로 한 단계 올라가는 것이 아닌 `/root`로 올라가게 된다.
+
+  - `relative`를 사용해 수정  
+    `<Link to='..' relative='path'>Back</Link>`
+
+    > relative의 기본값은 'route'
+
+    - path로 설정하면 현재 활성 경로를 살펴보고, 그 경로에서 한 세그먼트만 제거하게 된다.
+
+<br>
+
+- **라우트 정의에서 index 프로퍼티**  
+  부모 라우트가 활성인 경우에 로딩되어야 하는 기본 라우트를 정의하는 옵션
+
+  - `index: true` 로 설정하면 부모 라우트인 `'/'`에 있을 시 `index` 라우트가 활성화된다.
+
+  - 꼭 써야하는건 아니지만 가끔은 필요할 것. (ex. 빈 경로의 대체 등)
+
+    > `{ path: '', element: <HomePage /> }`
+
+    ```js
+    const router = createBrowserRouter([
+      {
+        path: '/',
+        element: <RootLayout />,
+        errorElement: <ErrorPage />,
+        children: [
+          { index: true, element: <HomePage /> },
+          { path: 'products', element: <ProductsPage /> },
+          { path: 'products/:productId', element: <ProductDetailPage /> },
+        ],
+      },
+    ]);
+    ```
+
+<br>
+
+- **`loader({ request, params })` 프로퍼티**
+
+  - 라우트를 정의할 때 `loader` 프로퍼티를 추가하게되면 리액트 라우터는 **해당 라우트를 방문하기 직전에** 항상 이 함수를 실행한다.
+
+  - loader 내부 로직은 서버가 아닌 브라우저에서 실행된다.  
+    그러므로 loader 함수에서는 어떤 브라우저 API도 사용이 가능하다.
+
+    > 같은 이유로 리액트 훅은 사용 불가능.
+
+  - 해당 함수의 반환값은 `useLoaderData`를 통해 `loader`를 설정한 라우트와 같거나 낮은 수준의 컴포넌트들에서 사용할 수 있다.
+
+    - `useLoaderData`: 가장 가까운 `loader` 데이터에 액세스하는 훅
+
+      ```js
+      import { useLoaderData } from 'react-router-dom';
+
+      import EventsList from '../components/EventsList';
+
+      function EventsPage() {
+        const events = useLoaderData();
+
+        return <EventsList events={events}>
+      }
+
+      export default EventsPage;
+      ```
+
+  - 그러나 이런식으로 `loader` 코드를 추가하다보면 App.js 파일 자체가 커지게되는 단점이 있다.  
+    따라서 필요로 하는 페이지 컴포넌트 파일에 loader를 넣는 것이 **일반적인 패턴**이며 **권장사항**이다.
+
+    ```js
+    // pages/EventsPage.js
+
+    function EventsPage() {
+      // ...
+    }
+
+    export default EventsPage;
+
+    export async function loader() {
+      const response = await fetch('http://localhost:8080/events');
+
+      if (!response.ok) {
+        // ...
+      } else {
+        const resData = await response.json();
+        return resData.events;
+      }
+    }
+    ```
+
+    ```js
+    // App.js
+
+    import EventsPage, { loader as eventsLoader } from './pages/EventsPage';
+
+    const router = createBrowserRouter([
+      {
+        path: '/',
+        element: <RootLayout />,
+        children: [
+          { index: true, element: <HomePage /> },
+          {
+            path: 'events',
+            element: <EventsRootLayout />,
+            children: [
+              {
+                index: true,
+                element: <EventsPage />,
+                loader: eventsLoader, // 실제 로직은 페이지 컴포넌트에 있다. (포인터)
+              },
+              // ..
+            ],
+          },
+        ],
+      },
+    ]);
+    ```
+
+  - `useLoaderData('id')`: 여러 라우트에서 하나의 로더를 사용할 때 사용된다.
+
+    > `eventDetailLoader`를 함께 사용하기위해 id, loader, children 설정
+
+    ```js
+    // App.js
+
+    const router = createBrowserRouter([
+      {
+        path: '/',
+        element: <RootLayout />,
+        children: [
+          // { index: true } ...
+          {
+            path: 'events',
+            element: <EventsRootLayout />,
+            children: [
+            // { index: true } ...
+              {
+                path: ':eventId',
+                id: 'event-detail'
+                loader: eventDetailLoader,
+                children: [
+                  { index: true, element: <EventDetailPage />},
+                  { path: 'edit', element: <EditEventPage />}
+                ]
+              }
+            ]
+          }
+        ]
+      },
+    ]);
+    ```
+
+    > `useRouteLoaderData()`를 설정한 id를 파라미터로 받아 같은 수준의 라우트들에서 같은 loader 데이터 사용
+
+    ```js
+    // pages/EventDetailPage.js
+
+    import { useRouteLoaderData } from 'react-router-dom';
+
+    function EventDetailPage() {
+      const data = useRouteLoaderData('event-detail');
+
+      return ...
+    }
+
+    export default EventDetailPage;
+
+    export async function loader() {
+      // ...
+    }
+
+
+    // pages/EditEventPage.js
+
+    import { useRouteLoaderData } from 'react-router-dom';
+
+    function EditEventPage() {
+      const data = useRouteLoaderData('event-detail');
+
+      return ...
+    }
+
+    export default EditEventPage;
+    ```
+
+<br>
+
+- **`useNavigation()`**  
+  리액트 라우터가 제공하는 훅으로,  
+  현재 전환이 진행 중인지, 데이터를 로딩하는 중인지, 전환이 진행되지 않고 있는지 알 수 있다.
+
+  1. `navigation.state`
+
+     - idle: 실행하고 있지 않은 상태
+     - loading: 데이터 로딩중
+     - submitting: 전환 진행중
+
+  2. `useEffect()`와의 차이점
+
+     - 이 훅을 사용했을 때의 로딩 인디케이터는 전환 후의 페이지에 표시되는게 아닌  
+       현재 화면에 표시되어 있는 페이지, 컴포넌트에 추가된다.
+
+<br>
+
+- **`action({ request, params })` 프로퍼티**  
+  `loader` 함수와 마찬가지로 리액트 라우터에서 제공하는 브라우저에서 실행되는 함수로,  
+  `loader`와 사용법이 같다.
+
+  > useLoaderData와 같은 useActionData도 제공한다.
+
+  - 폼 컴포넌트에서 받은 데이터는 request 객체에 전달된다.
+
+    ```js
+    export async function action({ request, params }) {
+      const data = await request.formData();
+
+      data.get('input-name'); // 인풋의 name 필드
+    }
+    ```
+
+<br>
+
+- **`<Form>` 컴포넌트**  
+  리액트 라우터에서 제공하는 특수한 Form 컴포넌트로 form 태그를 대체한다.
+
+  - 백엔드로 요청을 전송하는 브라우저 기본값을 생략하고, 해당 요청을 받아 모든 폼 데이터를 액션으로 전송한다.
+
+  - `method` 프로퍼티를 설정해줘야 한다.
+
+    ```js
+    // 'post', 'delete', 'patch', ...
+    <Form method=''>...</Form>
+    ```
+
+  - 일반적으로 활성 상태인 라우트의 action이 트리거되지만 `action` 프로퍼티를 설정해서 다른 라우트에 action을 트리거할 수 있다.
+    ```js
+    <Form method='' action='/other-route'>
+      ...
+    </Form>
+    ```
+
+<br>
+
+- **제출 상태를 이용한 UI 업데이트**
+
+  - `useNavigation.state` 의 submitting 값을 활용해 제출하면 버튼 비활성화 등의 사용자 피드백을 줄 수 있다.
+
+    ```js
+    function EventForm() {
+      // ...
+
+      const navigation = useNavigation();
+
+      const isSubmitting = navigation.state === 'submitting';
+
+      return (
+        <button disabled={isSubmitting}>
+          {isSubmitting ? 'Submitting...' : 'Save'}
+        </button>
+      );
+    }
+    ```
+
+<br>
+
+- **`useFetcher()`**  
+  페이지를 전환하지 않은 채로 action이나 loader와 상호작용하려는 경우에 사용된다.
+
+  - 쉽게 말해 라우트 변경을 트리거하지 않은 채로 배후에서 요청을 전송할 때 사용한다.
+
+  - 즉 공통된 컴포넌트가 있거나, 같은 페이지에서 여러 번 사용되는 컴포넌트가 있을 경우에 배후에서 데이터만 업데이트하거나 받으려 할 때 유용하다.
+
+  `const fetcher = useFetcher();`
+
+  - 훅이 실행되면 객체를 반환하는데 유용한 프로퍼티와 메서드가 포함되어있다.
+    ex) `fether.Form`, `fetcher.submit`, ...
+
+    > Form 컴포넌트, useSubmit과는 다르다
+
+  - 리액트 라우터 `Form`을 사용해 액션을 트리거하면 해당 액션이 등록된 페이지로 전환이 이루어진다.
+
+    > ex) 뉴스레터 페이지, 네비게이션의 뉴스레터  
+    > 네비게이션에서 이메일 입력하면 제출한 뒤 해당 페이지로 강제로 이동하게 되는데 이상적이지 않음.
+
+  - 그러나 `fetcher.Form`을 사용하게 되면 위의 경우에 해당 페이지로 전환이 일어나지 않는다.
+
+  - `fetcher`에는 트리거한 action, loader가 성공했는지 알 수 있는 프로퍼티도 많이 포함되어있다.
+    > ex) data, state, ...
+
+<br>
+
+- **`defer()` / `<Await>` / `<Suspense>`**
+
+  - `defer`를 사용하면 페이지 로딩 속도가 높아지고 콘텐츠를 기다리는 동안 약간의 콘텐츠를 미리 보여줄 수 있게 된다.
+
+  - `defer()`: 객체의 형태로 지연시킬 값을 받아 Promise를 반환한다. (react-route-dom 제공)
+
+    ```js
+    async function loadEvents() {
+      const response = await fetch('http://localhost:8080/events');
+
+      if (!response.ok) {
+        // throw new Response(JSON.stringify({ message: 'Could not fetch events.' }), {
+        //   status: 500,
+        // }); // Response 객체 생성
+
+        // json 형식의 데이터를 포함하는 Response 객체를 생성하는 함수.
+        return json({ message: 'Could not fetch events.' }, { status: 500 });
+      } else {
+        return response;
+      }
+    }
+
+    export function loader() {
+      return defer({
+        events: loadEvents(), // Promise를 반환
+      });
+    }
+    ```
+
+  - `<Await>`: resolve 프로퍼티에 defer의 Promise를 넣으면 그 데이터가 올 때 까지 기다린다. (react-route-dom 제공)
+
+    ```js
+    function EventsPage() {
+      const { events } = useLoaderData(); // defer가 반환하는 Promise
+
+      return (
+        <Await resolve={events}>
+          {(loadedEvents) => <EventsList events={loadedEvents} />}
+        </Await>
+      );
+    }
+
+    export default EventsPage;
+    ```
+
+  - `<Suspense>`: 다른 데이터가 도착하기를 기다리는 동안 fallback을 보여주는 특정한 상황에서 사용할 수 있다. (react 제공)
+
+    > Await를 감싸준다.
+
+    ```js
+    return (
+      <Suspense fallback={<p style={{ textAlign: 'center' }}>Loading...</p>}>
+        <Await resolve={events}>
+          {(loadedEvents) => <EventsList events={loadedEvents} />}
+        </Await>
+      </Suspense>
+    );
+    ```
+
+  - `defer()` 내부에서 await 키워드를 사용해 로딩되는동안 일부 데이터만 미리 표시하는 등,  
+    페이지 이동 전 어떤 데이터를 기다려야 하는지, 어떤 데이터를 연기해야 하는지 등 제어할 수 있다.
+
+  - `defer()`는 항상 사용하는 것이 아닌 모든 데이터가 도착하기 전에 뭔가를 표시해야 할 때 사용해야 한다.
+
+<br>
+
+- **섹션 요약**
+  1. 라우트 설정하는 방법
+  2. 여러 경로들에 대한 여러 컴포넌트들을 로딩하는 방법
+  3. 에러 핸들링
+  4. 여러 라우트를 감싸는 레이아웃 설정 방법
+  5. 중첩된 라우트
+  6. 데이터 가져오기 / 제출하기
+  7. loader, action을 사용한 데이터 가져오기 / 제출하기
+  8. useFetcher를 사용해 라우트 전환없이 데이터 조작하기
+  9. 데이터를 지연시켜 가져오기
+  10. 지연된 데이터가 도착하는 동안 페이지 표시 및 일부 데이터 표시
