@@ -1,4 +1,4 @@
-import { useRouteLoaderData, json } from 'react-router-dom';
+import { useRouteLoaderData, json, redirect } from 'react-router-dom';
 
 import EventItem from '../components/EventItem';
 
@@ -23,4 +23,20 @@ export async function loader({ request, params }) {
   } else {
     return response;
   }
+}
+
+export async function action({ request, params }) {
+  const eventId = params.someId;
+
+  const response = await fetch(`http://localhost:8080/events/${eventId}`, {
+    method: request.method, // EventItem.js의 useSubmit과 트리거
+  });
+
+  console.log(eventId, response);
+
+  if (!response.ok) {
+    throw json({ message: 'Could not delete event.' }, { status: 500 });
+  }
+
+  return redirect('/events');
 }
