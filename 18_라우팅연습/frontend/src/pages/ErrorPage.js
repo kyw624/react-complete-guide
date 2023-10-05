@@ -10,7 +10,7 @@ function ErrorPage() {
   let message = 'Something went wrong!';
 
   if (error.status === 500) {
-    message = JSON.parse(error.data).message;
+    message = error.data.message; // react-router-dom의 json() 사용하면 파싱 필요없음.
   }
 
   if (error.status === 404) {
