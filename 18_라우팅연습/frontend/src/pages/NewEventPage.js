@@ -26,6 +26,10 @@ export async function action({ request, params }) {
     body: JSON.stringify(eventData),
   });
 
+  if (response.status === 422) {
+    return response; // 백엔드에서 작성한 검증 오류 반환
+  }
+
   if (!response.ok) {
     throw json({ message: 'Could not save event.' }, { status: 500 });
   }
