@@ -25,7 +25,9 @@ import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import RootLayout from './pages/RootLayout';
 import HomePage from './pages/HomePage';
 import EventsPage, { loader as eventsLoader } from './pages/EventsPage';
-import EventDetailPage from './pages/EventDetailPage';
+import EventDetailPage, {
+  loader as eventDetailLoader,
+} from './pages/EventDetailPage';
 import NewEventPage from './pages/NewEventPage';
 import EditEventPage from './pages/EditEventPage';
 import EventsRootLayout from './pages/EventsRootLayout';
@@ -47,7 +49,11 @@ const router = createBrowserRouter([
             element: <EventsPage />,
             loader: eventsLoader, // 실제 로직은 페이지 컴포넌트에 있다. (포인터)
           },
-          { path: ':someId', element: <EventDetailPage /> },
+          {
+            path: ':someId',
+            element: <EventDetailPage />,
+            loader: eventDetailLoader,
+          },
           { path: 'new', element: <NewEventPage /> },
           { path: ':someId/edit', element: <EditEventPage /> },
         ],
