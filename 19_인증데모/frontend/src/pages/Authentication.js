@@ -44,7 +44,11 @@ export async function action({ request }) {
     throw json({ message: 'Could not authenticate user.' }, { status: 500 });
   }
 
-  // 추후에 토큰 관리 추가
+  // 토큰 관리
+  const resData = await response.json();
+  const token = resData.token;
+
+  localStorage.setItem('token', token);
 
   // 로그인 성공시 홈으로 리다이렉션
   return redirect('/');
