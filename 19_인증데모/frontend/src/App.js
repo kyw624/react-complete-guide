@@ -1,3 +1,9 @@
+/**
+ * 테스트 계정
+ * ID: test2@test.com
+ * PWD: 123456
+ */
+
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 
 import EditEventPage from './pages/EditEvent';
@@ -18,6 +24,7 @@ import AuthenticationPage, {
 } from './pages/Authentication';
 import { action as logoutAction } from './pages/Logout';
 import { tokenLoader } from './util/auth';
+import { checkAuthLoader } from './util/auth';
 
 const router = createBrowserRouter([
   {
@@ -51,6 +58,7 @@ const router = createBrowserRouter([
                 path: 'edit',
                 element: <EditEventPage />,
                 action: manipulateEventAction,
+                loader: checkAuthLoader,
               },
             ],
           },
@@ -58,6 +66,7 @@ const router = createBrowserRouter([
             path: 'new',
             element: <NewEventPage />,
             action: manipulateEventAction,
+            loader: checkAuthLoader,
           },
         ],
       },
