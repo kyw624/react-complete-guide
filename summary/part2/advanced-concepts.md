@@ -2167,6 +2167,8 @@ etc. 음식 추가 - Meals POST ( )
 
   - 라우트를 정의할 때 `loader` 프로퍼티를 추가하게되면 리액트 라우터는 **해당 라우트를 방문하기 직전에** 항상 이 함수를 실행한다.
 
+  - loader()는 항상 null 또는 다른 값을 리턴해야 한다.
+
   - loader 내부 로직은 서버가 아닌 브라우저에서 실행된다.  
     그러므로 loader 함수에서는 어떤 브라우저 API도 사용이 가능하다.
 
@@ -2492,3 +2494,123 @@ etc. 음식 추가 - Meals POST ( )
   8. useFetcher를 사용해 라우트 전환없이 데이터 조작하기
   9. 데이터를 지연시켜 가져오기
   10. 지연된 데이터가 도착하는 동안 페이지 표시 및 일부 데이터 표시
+
+---
+
+## 11. 인증 (Authentication)
+
+### 1. 리액트 앱에서의 인증
+
+### 2. 사용자 인증 구현
+
+### 3. 인증 지속성 (Auth Persistene) 추가 & 일정 시간 뒤 자동 로그아웃
+
+---
+
+<br>
+
+- **리액트에서의 인증 방식**
+
+  - 인증 토큰
+    1. 사용자가 로그인하면 백엔드에서 검증한 뒤 유효한 사용자라면 토큰을 생성해 응답을 돌려준다.
+       > 백엔드만의 개인키를 활용해 토큰 생성
+    2. 사용자는 받은 토큰을 클라이언트에 저장하고, 이후 요청을 보낼 때 토큰을 첨부해 백엔드에서 해당 요청의 검증이 이루어진다.
+
+<br>
+
+- **쿼리 매개변수**  
+  URL에서 물음표 뒤에 붙는 매개변수를 뜻하며,  
+  이를 활용해 용도에 따라 다른 요소들을 로딩할 수 있다.
+
+  - `useSearchParams(arg1, arg2)`
+
+    - arg1: 현재 설정된 쿼리 매개변수에 접근할 수 있는 객체
+    - arg2(선택): 현재 설정된 쿼리 매개변수를 업데이트할 수 있는 함수
+
+    ```js
+    import { Form, Link, useSearchParams } from 'react-router-dom';
+
+    function AuthForm() {
+      const [searchParams] = useSearchParams();
+      const isLogin = searchParams.get('mode') === 'login'; // 현재 URL에서 mode 쿼리 매개변수 값을 가져옴
+
+      return (
+        <>
+          <Form>
+            // 현재 모드에 따라 링크 연결 (로그인 <--> 가입)
+            <Link to={`?mode=${isLogin ? 'signup' : 'login'}`}>
+              {isLogin ? 'Create new user' : 'Login'}
+            </Link>
+          </Form>
+        </>
+      );
+    }
+
+    export default AuthForm
+    ```
+
+<br>
+
+- **토큰 관리**
+
+  - 토큰 저장
+
+    > 임시로 브라우저의 로컬 스토리지 이용
+
+    ```js
+    // /pages/Authentication.js
+
+    function AuthentiationPage() {
+      // ...
+    }
+
+    export async function action() {
+      // ...
+
+      const resData = await response.json();
+      const token = resData.token;
+
+      localStorage.setItem('token', token);
+
+      // ...
+    }
+    ```
+
+  - 토큰 사용
+
+    > 인증이 필요한 삭제 이벤트에 토큰을 담아 요청
+
+    > 토큰 관리를 위한 함수를 한 파일에 모아 관리
+
+    ```js
+    // util/auth.js
+
+    export function getAuthToken() {
+      const token = localStorage.getItem('token');
+      return token;
+    }
+    ```
+
+    > 'Bearer'에 공백을 하나 추가하고 뒤에 토큰을 붙여 요청한다.  
+    > ex) 'Bearer ' + token;
+
+    ```js
+    // pages/EventDetail.js
+
+    function EventDetailPage() {
+      // ...
+    }
+
+    export async function action({ request, params }) {
+      const eventId = params.eventId;
+
+      const token = getAuthToken(); // 저장해둔 토큰
+      const response = await fetch('http://localhost:8080/events/' + eventId, {
+        method: request.method,
+        // 헤더에 담아 백엔드로 요청
+        headers: {
+          Authorization: 'Bearer ' + token,
+        },
+      });
+    }
+    ```
