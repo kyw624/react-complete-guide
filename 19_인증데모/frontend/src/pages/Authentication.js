@@ -48,7 +48,11 @@ export async function action({ request }) {
   const resData = await response.json();
   const token = resData.token;
 
-  localStorage.setItem('token', token);
+  localStorage.setItem('token', token); // 토큰 저장
+  const expiration = new Date();
+  expiration.setHours(expiration.getHours() + 1); // 1시간 뒤
+  // expiration.setTime(expiration.getTime() + 5000); // 5초 뒤 만료 테스트 코드
+  localStorage.setItem('expiration', expiration.toISOString()); // 토큰 만료시간 저장
 
   // 로그인 성공시 홈으로 리다이렉션
   return redirect('/');
