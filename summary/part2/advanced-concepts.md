@@ -2614,3 +2614,117 @@ etc. 음식 추가 - Meals POST ( )
       });
     }
     ```
+
+---
+
+## 12. 리액트 앱
+
+### 1. 배포 단계 & 위험
+
+### 2. Server-side Routing vs Client-side Routing
+
+---
+
+<br>
+
+- **배포 단계**
+
+  1. 테스트
+  2. 최적화
+     - Lazy loading
+  3. 빌드
+  4. 프로덕션 코드 서버에 업로드
+  5. 서버 설정
+
+<br>
+
+- **Lazy Loading**
+
+  - 한번에 모든 코드들을 불러오면 첫 페이지의 로딩이 느려져 안좋은 사용자 경험을 제공한다.
+
+  - Lazy Loading을 사용하면 특정 컴포넌트를 나중에 필요할 때 불러오게돼서 성능이 향상된다.
+
+  1. 적용할 컴포넌트의 `import`문을 제거한다.
+
+  2. 라우트 정의 element의 컴포넌트를 대체 할 `React.lazy()` 적용한 컴포넌트 선언
+
+     > `<Suspense>`로 감싸주고 fallback 추가도 가능
+
+     ```js
+         // App.js
+         const { lazy, Suspense } from 'react';
+
+         // React.lazy()
+         const BlogPage = lazy(() => import('./pages/Blog'));
+
+         const router = createBrowserRouter([
+           {
+             // ...
+             children: [
+               // ...
+               {
+                 // fallback 추가
+                 element: (
+                   <Suspense fallback={<p>Loading...</p>}>
+                     <BlogPage />
+                   </Suspense>
+                   ),
+               },
+             ],
+           },
+         ])
+     ```
+
+  3. 라우트 정의 `loader` 코드에도 `lazy` 적용
+
+     - import 함수는 Promise를 반환한다.
+
+     - `loader`에서 `params`가 필요하다면 전달
+
+     ```js
+     // App.js
+
+     const router = createBrowserRouter([
+       {
+         // ...
+         children: [
+           // ...
+           element: ...,
+           loader: ({ params }) => import('./pages/BlogPage').then((module) => module.loader({ params }))
+         ]
+       }
+     ]);
+     ```
+
+  4. `Lazy Loading`이 적용된 페이지에 방문할 때 파일이 `import`되고 `loader` 함수가 실행된다.
+
+<br>
+
+- **배포 예시 (with Firebase)**
+
+  - 리액트 SPA는 정적 웹사이트이기 때문에 정적 웹사이트 호스트를 사용하면 된다.
+
+  1. Firebase 새 프로젝트 생성
+
+  2. 생성한 프로젝트의 빌드 탭 -> 호스팅
+
+  3. Firebase 서버에 코드를 업로드하기 위한 도구 설치
+
+     - `$ npm install -g firebase-tools`
+
+  4. Firebase 로그인 및 초기화
+
+     - `$ firebase login`
+
+  5. Firebase 프로젝트에 로컬 프로젝트 연결
+
+     - `$ firebase init`
+     - 사용할 기능 선택
+     - 초기화 단계에서 SPA 설정 부분 중요!
+       > react-router-dom은 클라이언트 측 패키지로 컴포넌트 전환이 브라우저에서 실행되기때문
+     - 다른 호스팅 제공자에서 SPA 설정을 물어보지 않는 경우?
+       > 모든 요청에 대해 index.html을 반환하도록 직접 리다이렉션 설정 필요
+
+  6. 배포 중단
+
+     - `$ firebase hosting:disable`
