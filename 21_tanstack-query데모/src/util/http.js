@@ -1,3 +1,8 @@
+import { QueryClient } from '@tanstack/react-query';
+
+// 이벤트 생성시 업데이트를 위함
+export const queryClient = new QueryClient();
+
 // 이벤트 가져오기
 export async function fetchEvents({ signal, searchTerm }) {
   let url = 'http://localhost:3000/events';
@@ -40,4 +45,22 @@ export async function createNewEvent(eventData) {
   const { event } = await response.json();
 
   return event;
+}
+
+// 이미지 가져오기
+export async function fetchSelectableImages({ signal }) {
+  const response = await fetch(`http://localhost:3000/events/images`, {
+    signal,
+  });
+
+  if (!response.ok) {
+    const error = new Error('An error occurred while fetching the images');
+    error.code = response.status;
+    error.info = await response.json();
+    throw error;
+  }
+
+  const { images } = await response.json();
+
+  return images;
 }
