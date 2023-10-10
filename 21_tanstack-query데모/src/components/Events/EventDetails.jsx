@@ -29,7 +29,10 @@ export default function EventDetails() {
   const { mutate, isPending: isMutationPending } = useMutation({
     mutationFn: deleteEvent,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['events'] });
+      queryClient.invalidateQueries({
+        queryKey: ['events'],
+        refetchType: 'none', // 기존 쿼리 자동 트리거 방지
+      });
       navigate('/events');
     },
   });
