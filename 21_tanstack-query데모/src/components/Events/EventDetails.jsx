@@ -1,6 +1,10 @@
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useParams } from 'react-router-dom';
 
 import Header from '../Header.jsx';
+import { useQuery } from '@tanstack/react-query';
+import { fetchEvent } from '../../util/http.js';
+import LoadingIndicator from '../UI/LoadingIndicator.jsx';
+import ErrorBlock from '../UI/ErrorBlock.jsx';
 
 /**
  * [실습 요구사항]
@@ -9,6 +13,42 @@ import Header from '../Header.jsx';
  */
 
 export default function EventDetails() {
+  const id = useParams().id;
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['event', { id }],
+    queryFn: ({ signal }) => fetchEvent({ id, signal }),
+  });
+
+  let content;
+
+  if (isLoading) {
+    content = <LoadingIndicator />;
+  }
+
+  if (isError) {
+    content = (
+      <ErrorBlock title='An error occurred' message={error.info?.message} />
+    );
+  }
+
+  if (data) {
+    content = (
+      <>
+        <img src={`http://localhost:3000/${data.image}`} alt={data.image} />
+        <div id='event-details-info'>
+          <div>
+            <p id='event-details-location'>{data.location}</p>
+            <time dateTime={`Todo-DateT$Todo-Time`}>
+              {data.date} @ {data.time}
+            </time>
+          </div>
+          <p id='event-details-description'>{data.description}</p>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
       <Outlet />
@@ -25,16 +65,7 @@ export default function EventDetails() {
             <Link to='edit'>Edit</Link>
           </nav>
         </header>
-        <div id='event-details-content'>
-          <img src='http://localhost:3000/${IMAGE_NAME}' alt='' />
-          <div id='event-details-info'>
-            <div>
-              <p id='event-details-location'>EVENT LOCATION</p>
-              <time dateTime={`Todo-DateT$Todo-Time`}>DATE @ TIME</time>
-            </div>
-            <p id='event-details-description'>EVENT DESCRIPTION</p>
-          </div>
-        </div>
+        <div id='event-details-content'>{content}</div>
       </article>
     </>
   );
