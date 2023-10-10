@@ -65,6 +65,7 @@ export async function fetchSelectableImages({ signal }) {
   return images;
 }
 
+// [실습] 이벤트 세부사항 가져오기
 export async function fetchEvent({ id, signal }) {
   const response = await fetch(`http://localhost:3000/events/${id}`, {
     signal,
@@ -82,6 +83,7 @@ export async function fetchEvent({ id, signal }) {
   return event;
 }
 
+// [실습] 이벤트 삭제
 export async function deleteEvent({ id }) {
   const response = await fetch(`http://localhost:3000/events/${id}`, {
     method: 'DELETE',
