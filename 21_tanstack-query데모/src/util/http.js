@@ -4,11 +4,15 @@ import { QueryClient } from '@tanstack/react-query';
 export const queryClient = new QueryClient();
 
 // 이벤트 가져오기
-export async function fetchEvents({ signal, searchTerm }) {
+export async function fetchEvents({ signal, searchTerm, max }) {
   let url = 'http://localhost:3000/events';
 
-  if (searchTerm) {
+  if (searchTerm && max) {
+    url += `?max=${max}&max=${max}`;
+  } else if (searchTerm) {
     url += `?search=${searchTerm}`;
+  } else if (max) {
+    url += `?max=${max}`;
   }
 
   const response = await fetch(url, { signal });
