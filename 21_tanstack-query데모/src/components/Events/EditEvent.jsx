@@ -22,6 +22,7 @@ export default function EditEvent() {
   const { data, isError, error } = useQuery({
     queryKey: ['events', { id }],
     queryFn: ({ signal }) => fetchEvent({ id, signal }),
+    staleTime: 10000, // staleTime 설정해 중복 요청 방지
   });
 
   // 리액트 라우터의 action 함수로 대체
