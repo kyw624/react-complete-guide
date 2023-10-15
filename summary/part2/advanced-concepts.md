@@ -2728,3 +2728,240 @@ etc. 음식 추가 - Meals POST ( )
   6. 배포 중단
 
      - `$ firebase hosting:disable`
+
+---
+
+## 13. Tanstack 쿼리 (리액트 쿼리)
+
+### 1. Tanstack 쿼리란? & 사용법
+
+### 2. 데이터 가져오기 및 변형 (Mutating)
+
+### 3. Tanstack 쿼리 설정
+
+### 4. 심화: 캐시 무효화 & 낙관적 업데이트 등
+
+---
+
+<br>
+
+- **Tanstack 쿼리**
+
+  - useEffect, useState 등의 리액트 훅을 대체해 더 간편하게 HTTP 요청을 처리할 수 있다.
+
+  - 적용하는 것만으로 페이지를 벗어나고 다시 돌아올 때 자동으로 데이터를 업데이트한다.
+
+  - `App 컴포넌트`를 `QueryClientProvider`로 래핑하고 client 프로퍼티를 설정해 사용한다.
+
+    ```jsx
+    import { QueryClientProvider, QueryClient } from '@tanstack/react-query'
+
+    const queryClient = new QueryClient();
+
+    function App() {
+      return (
+        <QueryClientProvider client={queryClient}>
+          <RouterProvider router={router}>
+        </QueryClientProvider>
+      )
+    }
+    ```
+
+  - `QueryClient.invalidateQueries({target})`: 실행해서 특정 쿼리를 만료시켜 업데이트가 필요하다고 리액트 쿼리에 알려줄 수 있다.
+
+    - 파라미터로 객체 형태의 `queryKey`를 받는다.
+
+    - `queryKey`는 정확히 일치하지 않아도된다. 이는 곧 해당 키를 사용하는 쿼리를 모두 무효화시킨다.
+
+    - 정확히 일치하는 특정 쿼리만 무효화하려면 `exact` 프로퍼티를 `true`로 설정하면 된다.
+
+    - 쿼리 무효화 후 쿼리의 자동 업데이트를 막으려면 `refetchType` 프로퍼티를 `'none'`으로 설정하면 된다.
+
+    ```js
+    // 이벤트 쿼리 만료시킨 뒤 자동 업데이트 예시
+
+    import queryClient from '../../util/http.js';
+
+    useMutation({
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['events'],
+          // refetchType: 'none' // 쿼리 자동 트리거 방지해 업데이트 X
+        });
+      },
+    });
+    ```
+
+<br>
+
+- **`useQuery()`**  
+  리액트 쿼리 팀에서 만든 커스텀 훅으로,  
+  자체적으로 HTTP 요청을 전송하고 데이터를 가져와 로딩 상태에 대한 정보 제공, 요청 간 오류 등을 알 수 있다.
+
+  - `GET 요청`에 사용된다.
+
+  - 요청 전송 취소를 위한 `signal prop`을 반환한다.
+
+  - Tanstack 쿼리에는 HTTP 요청을 전송하는 로직이 내장되어 있지 않아 요청을 전송하는 코드는 직접 작성해야 한다.  
+    대신 요청을 관리하는 로직을 제공한다. (데이터, 에러 등을 추적하는 역할)
+
+  ```js
+  const { data, isPending, isError, error, refetch } = useQuery({
+    queryKey: ['events'],
+    queryFn: fetchEvents,
+  });
+  ```
+
+  - 프로퍼티
+
+    1. `queryFn`  
+       요청 전송 시 실행할 코드 정의
+
+       - 기본적으로 요청 전송을 취소하기위한 signal을 객체 형태로 반환한다.
+
+       - 기본적으로 queryKey도 매개변수로 객체형태로 받는다.
+
+    2. `queryKey`  
+       내부에서 쿼리 키를 이용해 요청으로 생성된 데이터를 캐시 처리한다.
+
+       - 전송하는 모든 GET 요청에는 쿼리 키가 있다.
+
+         > 쿼리키는 배열의 형태로 원하는 대로 구성
+
+       - 나중에 동일한 요청을 전송하면 이전 요청의 응답을 재사용할 수 있다.
+
+       - max 프로퍼티로 쿼리의 최대개수를 전송할 수 있다.
+
+    3. `enabled`: (false / true)  
+       요청 전송 유무를 설정.
+       > 조건부 요청 전송에 활용 가능.  
+       > ex) 검색어 입력 전에는 전송하지 않도록 등...
+
+  - 반환값들
+
+    1. `data`: reponse 데이터
+    2. `isPending`: 요청 상태
+    3. `isLoading`: 로딩 상태
+       > 쿼리가 비활성화일 때의 조건부 처리에 활용 가능
+    4. `isError`: 에러 상태 (요청 로직에서 에러 처리 필요)
+    5. `error`: 발생한 에러 정보
+    6. `refetch`: 수동으로 호출시 동일한 쿼리 전송 가능
+
+<br>
+
+- **캐시 처리**
+
+  - 리액트 쿼리는 요청을 통해 얻은 응답 데이터를 캐시 처리하고 나중에 동일한 쿼리 키를 가진 다른 `useQuery`가 실행되면 이 데이터를 재사용한다.
+
+  - 이와 동시에 내부적으로 이 요청을 다시 전송해서 업데이트된 데이터가 있는지 확인하고, 교체해 화면에는 업데이트된 데이터가 표시된다.
+
+  - `staleTime`, `gcTime`: 밀리초(ms) 기준으로 설정.
+
+    1. `staleTime`: 설정한 시간동안은 해당 쿼리의 요청을 다시 전송하지않도록 제어하는 프로퍼티.
+
+       - 불필요한 요청 전송을 방지한다.
+       - 기본값은 0으로 캐시 데이터를 사용하지만, 업데이트된 데이터를 가져오기 위한 자체적인 요청을 **항상 전송**한다.
+
+    2. `gcTime (garbage collect time)`: 데이터와 캐시를 얼마나 보관할지를 제어하는 프로퍼티로 기본값은 5분이다.
+
+<br>
+
+- **`useMutation()`**  
+  `POST 요청`을 전송할 때 사용하는 리액트 쿼리 훅.
+
+  - `useQuery`와 달리 컴포넌트가 렌더링될 때 요청이 즉시 전송되지 않도록 필요할 때만 전송을 할 수 있다.
+
+  - 프로퍼티
+
+    1. `mutationKey`: 선택 요소. reponse 데이터를 캐시 처리하지 않기때문.
+
+    2. `mutationFn`: `queryFn`과 같은 전송 로직.
+
+       - 데이터 전달 방법: 반환된 `mutate` 함수에 전달
+
+    3. `onSuccess`: mutate 완료 시의 동작을 익명 함수로 작성할 수 있다.
+       > `QueryClient`의 `invalidateQueries()`를 활용해 데이터 변동시 만료시켜 업데이트할 수 있다.
+
+  - 반환값
+
+    1. `mutate`: 요청의 실행 시기를 설정하는 프로퍼티로, 원하는 곳에서 이 함수를 호출해 실행한다.
+
+<br>
+
+- **낙관적 업데이트**
+
+  - 리액트 쿼리가 지원하는 기능으로,  
+    서버에서 응답을 기다리지않고 사용자에게 빠른 피드백을 제공해 사용자 경험을 개선할 수 있다.
+
+  - 업데이트를 하면 백엔드에 요청을 하기 전 즉시 UI 업데이트가 실행되고 백엔드에서 업데이트 실패시 되돌리는 롤백 기능을 지원한다.
+
+  1.  `useMutation` 훅의 `onMutate()`를 통해 수행할 수 있다.
+
+      > `onMutate`는 `mutate()`를 호출하는 즉시 실행된다.
+
+      - 일반적으로는 캐시되는 새 응답을 받을 때마다 리액트 쿼리에서 수정하지만, `queryClient.setQueryData(arg1, arg2)`를 호출해 직접 데이터를 수정할 수도 있다.
+        - `arg1`: 편집하려는 쿼리의 key
+        - `arg2`: 해당 쿼리에 저장하려는 새 데이터
+          > mutate()에 전달한 값을 onMutate의 인자로 받을 수 있다.
+
+  2.  낙관적 업데이트를 실행할 때 일반적으로 해야하는 다른 작업으로는 `queryClient`를 사용해 특정 키의 모든 활성 쿼리를 취소하는 것이다.
+
+      > Promise를 반환한다.
+
+      - `await cancleQueries({queryKey: [...]})`에 취소하려는 쿼리 key를 객체 형태로 설정한다.
+
+      - 이렇게하면 해당 쿼리의 응답 데이터와 낙관적 업데이트된 쿼리 데이터가 충돌하지 않는다.
+
+  3.  롤백 설정
+
+      - `queryClient.getQueryData([queryKey])`: `setQueryData()` 전에 현재 쿼리 데이터를 변수에 저장해두고 반환해서 에러 발생시 롤백에 사용한다.
+
+        ```js
+        const { mutate } = useMutation({
+          mutationFn: ...,
+          onMutate: async (data) => {
+            // ...
+
+            const perviousEvent = queryClient.getQueryData(['events', { id }]);
+
+            return {previousEvent}
+          }
+        })
+        ```
+
+      - `useMutation()`에 `onError(error, data, context)`를 작성한다.
+
+        - data는 똑같이 mutate의 데이터가 전달된다.
+        - context에는 onMutate에서 반환한 값이 프롭으로 전달되는데 해당 값으로 쿼리 데이터를 업데이트해준다.
+
+        ```js
+        onError: (error, data, context) => {
+          queryClient.setQueryData(['events', { id }], context.previousEvent);
+        };
+        ```
+
+  4.  낙관적 업데이트 적용의 마지막 단계로 `onSettled()` 설정
+
+      - 값으로 함수를 받으며 mutation이 완료될 때마다 호출된다.
+      - 쿼리 무효화를 통해 백엔드의 데이터와 프론트엔드의 데이터가 일치한지 확인하고, 동기화되지 않은 경우 리액트 쿼리에 데이터를 다시 가져오도록 내부적으로 작동한다.
+
+      ```js
+      onSettled: () => {
+        queryClient.invalidateQueries(['events', { id }]);
+      };
+      ```
+
+<br>
+
+- **`useIsFetching()`**  
+  리액트 쿼리에서 제공하는 데이터를 가져오는 상태를 알 수 있는 훅
+
+  - 해당 값이 0이면 데이터를 가져온 것
+  - 0보다 더 큰 수면 가져오는 중
+
+  ```js
+  const fetching = useIsFetching();
+
+  // 데이터를 불러오는 중이면 progress 렌더링
+  return <div id='main-header-loading'>{fetching > 0 && <progress />}</div>;
+  ```
