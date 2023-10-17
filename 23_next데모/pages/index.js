@@ -19,7 +19,7 @@ const DUMMY_MEETUPS = [
   },
   {
     id: 'm3',
-    title: '첫번째 모임',
+    title: '세번째 모임',
     image:
       'https://content.skyscnr.com/m/1bf0d1856ed075b1/original/czech-republic-prague-gettyimages-503372055.jpg?resize=1800px:1800px&quality=100',
     address: '서울',
