@@ -40,4 +40,21 @@ export async function getStaticProps() {
   };
 }
 
+// // 서버가 배포된 후 요청이 들어올 때마다 서버에서 페이지를 생성
+// // context 매개변수를 통해 요청, 응답 객체에 접근 가능
+// // 따라서 현재 프로젝트에서는 적합하지 않음. (예시용)
+// export async function getServerSideProps(context) {
+//   const req = context.req; // 요청 객체
+//   const res = context.res; // 응답 객체
+
+//   // 데이터 fetch
+//   // ...
+
+//   return {
+//     props: {
+//       meetups: DUMMY_MEETUPS,
+//     },
+//   };
+// }
+
 export default HomePage;
