@@ -11,4 +11,27 @@ function MeetupDetails() {
   );
 }
 
+export async function getStaticPaths() {
+  return {
+    fallback: false,
+    paths: [{ params: { meetupId: 'm1' } }, { params: { meetupId: 'm2' } }],
+  };
+}
+
+export async function getStaticProps(context) {
+  const meetupId = context.params.meetupId; // context로 url에 접근
+
+  return {
+    props: {
+      meetupData: {
+        // id: meetupId,
+        // image:,
+        // title:,
+        // description:,
+        // addres:,
+      },
+    },
+  };
+}
+
 export default MeetupDetails;
