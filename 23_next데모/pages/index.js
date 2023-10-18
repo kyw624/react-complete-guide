@@ -1,3 +1,4 @@
+import Head from 'next/head';
 import { MongoClient } from 'mongodb';
 
 import MeetupList from '../components/meetups/MeetupList';
@@ -6,7 +7,15 @@ import { user } from '../db';
 const { username, password } = user;
 
 function HomePage(props) {
-  return <MeetupList meetups={props.meetups} />;
+  return (
+    <>
+      <Head>
+        <title>React Meetups</title>
+        <meta name='description' content='리액트로 만든 모임 앱입니다!' />
+      </Head>
+      <MeetupList meetups={props.meetups} />;
+    </>
+  );
 }
 
 // 빌드 프로세스 중 실행되는 정적 생성 코드로 데이터 가져오기를 기다린 뒤 함께 렌더링됨.
