@@ -2965,3 +2965,430 @@ etc. 음식 추가 - Meals POST ( )
   // 데이터를 불러오는 중이면 progress 렌더링
   return <div id='main-header-loading'>{fetching > 0 && <progress />}</div>;
   ```
+
+---
+
+## 14. Next.js 소개 (Pretty deep dive)
+
+### 1. Next.js란? 왜 사용하는지?
+
+### 2. 파일 기반 라우팅 & 페이지 사전 렌더링
+
+- Next.js의 주요 기능
+
+### 3. 데이터 가져오기 & API 추가
+
+---
+
+<br>
+
+- **프레임워크 vs 라이브러리**
+
+  - 프레임워크는 라이브러리보다 더 크고 기능이 많다.
+
+  - 프레임워크는 하나에 초점을 맞추기보다는 여러가지를 다룬다.
+
+<br>
+
+- **Next.js란?**  
+  리액트의 풀스택 프레임워크로,  
+  대규모의 양산형 리액트 앱을 편리하게 구축할 수 있는 많은 기능을 제공한다.
+
+  - 리액트 자체도 자바스크립트 라이브러리지만  
+    사용자 인터페이스 부분에만 초점을 맞춘다.
+
+  - 보통 대규모 리액트 프로젝트 구축에는 라우팅, 인증에 필요한 라이브러리들을 추가해야한다.
+
+<br>
+
+- **주요 기능과 이점**
+
+  **1. 서버 사이드 렌더링 내장 (SEO 향상)**
+
+  > `SSR`: 페이지 콘텐츠를 전적으로 서버에서 준비
+
+  - `클라이언트 사이드 렌더링`은 초기 HTML 페이지가 뼈대만 있고 비어있어 SEO가 좋지않고, 데이터 로딩시 화면이 깜빡이는 등 사용자 경험에 안좋을 수 있다.
+
+  - `서버 사이드 렌더링`은 서버에서 해당 페이지를 사전 렌더링한 상태에서, 요청이 들어왔을때 완성된 페이지를 사용자와 검색 엔진 크롤러에 제공한다.
+
+  - SEO가 필요없는 예시: 로그인이 필요한 대시보드
+
+  - SEO가 중요한 예시: 검색엔진을 통해 찾아야하는 공개된 콘텐츠 페이지
+
+  - 리액트에서도 SSR 기능이 내장되어 있긴하지만 사용하기 까다로운 반면에  
+    Next.js는 추가 설정을 하지 않아도 자동으로 사전 렌더링을 한다.
+
+  **2. 파일 기반 라우팅으로 라우팅 간소화**
+
+  - 리액트에서 코드 내에 라우트를 정의했던 것과 달리  
+    Next.js에서는 파일과 폴더를 이용해 페이지와 라우트를 정의한다.
+
+    > 추가 코드가 필요없어져 코드를 적게 작성하면서 작업량이 줄어든다.
+
+  - Next.js에는 특수한 페이지 폴더인 `pages`가 존재하는데  
+    이 폴더를 구성하고 페이지가 지원하는 라우트, 경로를 정의하면 된다.
+
+  **3. 풀스택 앱 빌드**
+
+  - 풀스택 리액트 프로젝트를 구축하려면 클라이언트 코드를 비롯해 서버 사이드 렌더링, 백엔드 코드도 필요하다.
+
+  - Next.js를 사용하면 개발자가 리액트 프로젝트에 백엔드 코드를 쉽게 추가할 수 있다.
+
+<br>
+
+- **Next 튜토리얼**
+
+  - 프로젝트 생성 (13 버전)  
+     `$ npx create-next-app`
+
+    > 12 버전 다운그레이드
+
+    1.  `$ npx create-next-app`
+    2.  `$ npm install next@12 react@17 react-dom@17`
+
+  - 프로젝트 구조 (12 버전)
+
+    1. `/pages` (제일 중요): 파일 기반 라우팅을 설정하고, 앱을 구성할 여러 페이지를 정의.
+       - `index.js`: 루트 페이지. (url에서 `/` 뒤에 아무것도 없을 때)
+         > ex) index.js  
+         > https://도메인/
+       - `경로명.js`: 파일명이 `/` 뒤의 경로명으로 사용된다.
+         > ex) news.js  
+         > https://도메인/news
+    2. `/public`: 페이지에서 사용할 공개 리소스. ex) 이미지 등..
+       - 리액트 프로젝트와 구성이 다른데 `index.html`이 없다.
+         > 사전 렌더링 기능을 내장하기때문
+    3. `/styles`: 스타일 파일들
+
+  - React import 생략 가능  
+    `import React from 'react'`  
+    이미 내부적으로 추가되어서 따로 import 하지 않아도됨.
+
+<br>
+
+- **중첩 라우팅**
+
+  - /pages
+
+    - `pages/index.js`: 루트 페이지
+    - `pages/news.js`: news 페이지
+
+  - /pages/news
+
+    > news 하위 폴더 생성 후 중첩 라우팅
+
+    - `pages/index.js`: 루트 페이지
+    - `pages/news/index.js`: news 페이지
+
+<br>
+
+- **매개변수를 포함한 동적 페이지**
+
+  - 파일/폴더명에 대괄호를 쓰면 Next.js가 동적 페이지로 인식한다.
+
+  - 뉴스 상세 페이지 예시
+
+    > url: 도메인/news/newsId/
+
+    newsId 자리에 임의의 식별자들이 올 수 있다.
+
+    ```js
+    // /pages/news/[newsId.js]
+
+    function DetailPage() {
+      return <h1>The Detail Page</h1>;
+    }
+
+    export default DetailPage;
+    ```
+
+<br>
+
+- **동적 매개변수 값 추출하기**
+
+  - Next.js에서 제공하는 `useRouter()` 훅을 사용해 URL에 입력된 구체적인 값을 추출할 수 있다.
+
+    ```js
+    import { useRouter } from 'next/router';
+
+    const router = useRouter();
+    const newsId = router.query.newsId; // 라우트 파일의 대괄호 안에 넣은 식별자를 속성으로
+    ```
+
+<br>
+
+- **페이지 폴더의 `_app.js`**
+
+  - 각 페이지의 공통된 레이아웃 페이지를 적용하거나 글로벌 스타일을 적용하는데 사용할 수 있는 파일이다.
+
+    > 아래의 경우 모든 컴포넌트에 레이아웃이 적용된다.
+
+    ```js
+    import Layout from '../components/layout/Layout';
+
+    import '../styles/globals.css';
+
+    function MyApp({ Component, pageProps }) {
+      return (
+        <Layout>
+          <Component {...pageProps} />
+        </Layout>
+      );
+    }
+
+    export default MyApp;
+    ```
+
+<br>
+
+- **사전 렌더링 작동 방식에 의한 문제점**
+
+  - `useState`, `useEffect`를 통해 데이터를 가져오는 방식으로는 렌더링이 2번 발생하게된다.
+
+    > 컴포넌트가 처음 실행될 때의 초기값은 비어있는 상태  
+    > useEffect에 의해 상태가 업데이트되면서 두번째 렌더링
+
+  - 하지만 Next.js의 사전 렌더링은 두번째 렌더링 사이클을 기다리지않아 데이터를 가져온 뒤에 UI 업데이트는 일어나지만, 실제 HTML에는 비어있는 상태이다.
+
+    > SEO에 치명적
+
+  - 그러나 Next.js는 이 문제의 해결책에 대한 기능을 내장하고있다.
+
+    > 두 가지 형태의 사전 렌더링 제공
+
+    1. 정적 생성 (SSG, Static Site Generation)
+
+       - **사전 렌더링 시점**  
+         프로덕션용으로 빌드하는 시점. 배포되고 나면 변경되지 않는다.
+
+         > 사전 렌더링한 페이지를 변경하려면 빌드를 다시 하고 배포해야 한다.
+
+         > 많은 앱이나 페이지가 자주 바뀌지는 않지만 그런 경우 대안이 존재함.  
+         > (`revalidate` 프로퍼티 사용)
+
+       - **사용**  
+         데이터를 기다려야 한다면 페이지 컴포넌트 파일 안에서 특수 함수 `getStaticProps()`를 `export`로 내보내야 한다.
+
+    2. 서버 사이드 렌더링 (SSR)
+
+<br>
+
+- **`getStaticProps()`**  
+  사전 렌더링 페이지의 `정적 생성 방식(SSG)`에 사용되는 함수로,  
+  데이터를 기다려야하는 페이지 컴포넌트 파일 안에서 `export`해 사용한다.
+
+  - 페이지 컴포넌트 파일에서만 작동한다.
+
+  - Next.js는 사전 렌더링 프로세스 중에 해당 함수를 발견하면 실행한다.
+
+  - 비동기 처리가 가능하다.
+
+    > 컴포넌트에서 사용할 데이터들을 기다린 뒤 함께 렌더링 가능.
+
+  - 여기서 작성되는 코드는 클라이언트 측에서 절대 실행되지 않으며, 빌드 프로세스 중에 실행된다.
+
+  - API나 데이터베이스에서 데이터를 가져오는 작업 뒤에 항상 객체를 반환해야 한다.
+
+    > 객체에는 반드시 props key 프로퍼티를 사용
+
+    ```js
+    export async function getStaticProps() {
+      return {
+        // 항상 props key 객체를 반환
+        props: {
+          meetups:
+        },
+        // 점진적 정적 생성 기능이 필요하면 추가
+        // 데이터 변경이 잦은 애플리케이션에서 설정시간마다 페이지를 다시 생성함. (단위: 초)
+        revalidate: 10 // 10초마다 서버에서 페이지를 다시 생성
+      }
+    }
+    ```
+
+  - 동적인 페이지에서 `getStaticProps()`를 사용할 경우 `getStaticPaths()`가 필요하다.
+
+<br>
+
+- **`getServerSideProps()`**  
+  `getStaticProps()`의 `revalidate`를 통한 업데이트로 부족할 경우,  
+  예를 들어 요청이 들어올 때마다 페이지를 다시 만들어야 하는 경우 동적으로 생성할 수 있다.
+
+  - 빌드 프로세스 중이 아닌 서버가 배포된 후 실행된다.
+
+  - 함수 내부 코드는 서버에서 실행된다. (클라이언트 측에서는 X)
+
+  - `props key`로 객체를 반환하고,  
+    매개변수로 `context`를 받아 요청 객체, 응답 객체 등에 접근할 수 있다.
+
+    ```js
+    export async function getServerSideProps(context) {
+      const req = context.req;
+      const res = context.res;
+
+      return {
+        props: {
+          meetups: DUMMY_MEETUPS,
+        },
+      };
+    }
+    ```
+
+<br>
+
+- **`getStaticProps()` vs `getServerSideProps()`**
+
+  - 무조건 한쪽이 더 좋은 것이 아닌 용도에 맞게 사용할 것
+
+  1. 자주 바뀌는 데이터가 없거나, 인증같은 요청 객체에 접근할 필요가 없다면 `getStaticProps`가 좀 더 낫다.
+
+  2. 자주 바뀌는 데이터가 있거나, 구체적인 요청 객체에 접근해야 할 경우 `getServerSideProps`를 사용해야 한다.
+
+<br>
+
+- **`getStaticPaths()`**  
+  빌드 프로세스 중에 사전 렌더링 페이지가 생성되기때문에 동적 페이지 URL 정보가 없는데, 이 동적 URL 값들을 넣어주는 느낌
+
+  - `paths` 배열을 반환하는데, 각 배열의 값은 fallback에 fallback 페이지 표시 여부를, params 객체에 동적 페이지 값을 포함한다.
+
+    ```js
+    export async function getStaticPaths() {
+      return {
+        fallback,
+        paths: [
+          // 동적 페이지 파일이 [meetupId].js
+          { params: { meetupId: 'm1' } },
+          { params: { meetupId: 'm2' } },
+          { params: { meetupId: 'm3' } },
+        ],
+      };
+    }
+    ```
+
+  - **fallback**
+    - `false`: paths에 있는 페이지 외에는 404 에러
+    - `true`: Next.js가 들어오는 요청에 의해 설정되어있는 paths의 id로 동적으로 생성한다.
+    - `blocking`: true 처럼 동적으로 생성하지만 차이점이 있는데  
+      `true`는 빈 페이지를 즉시 반환하고 동적으로 콘텐츠를 받는 반면에,  
+      `blocking`은 페이지가 생성될 때까지 사용자는 볼 수 없고 완성된 페이지를 제공한다.
+
+<br>
+
+- **API 라우트**  
+  API 라우트는 서버에서만 돌아가는 서버 사이드 코드를 포함하는 함수.
+
+  - pages 폴더에 api 폴더를 만들고 그 안에 js 파일로 API 라우트 정의
+
+  - 클라이언트에 노출되지 않아 인증 등의 로직에 용이하다.
+
+  - 함수들은 라우트에 요청이 들어올 때마다 트리거된다.
+
+  - **몽고DB 연결 예시**
+
+    > API 라우트 정의
+
+    ```js
+    import { MongoClient } from 'mongodb';
+
+    // /api/new-meetup
+    // POST /api/new-meetup
+
+    async function handler(req, res) {
+      if (req.method === 'POST') {
+        const data = req.body;
+
+        // DB 연결
+        // 비밀번호에 @ 포함됐을 경우 %40 으로 변경
+        const client = await MongoClient.connect(
+          'mongodb+srv://<username>:<password>@cluster0.sjwr7sg.mongodb.net/<dbname>?retryWrites=true&w=majority'
+        );
+        const db = client.db();
+
+        // 컬렉션 추가
+        const meetupsCollection = db.collection('meetups');
+
+        // 컬렉션에 새 문서 삽입 (object)
+        const result = await meetupsCollection.insertOne(data);
+
+        console.log(result);
+
+        // DB 연결 해제
+        client.close();
+
+        // 201: 삽입 성공
+        res.status(201).json({ message: 'Meetup inserted!' });
+      }
+    }
+
+    export default handler;
+    ```
+
+    > POST 요청
+
+    ```js
+    import { useRouter } from 'next/router';
+    import NewMeetupForm from '../../components/meetups/NewMeetupForm';
+
+    function NewMeetupPage() {
+      const router = useRouter();
+
+      async function handleAddMeetup(enteredMeetupData) {
+        // url: 내부 api 파일 경로
+        const response = await fetch('/api/new-meetup', {
+          method: 'POST',
+          body: JSON.stringify(enteredMeetupData),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = await response.json();
+
+        console.log(data);
+
+        router.push('/'); // 루트로 이동
+      }
+
+      return <NewMeetupForm onAddMeetup={handleAddMeetup} />;
+    }
+
+    export default NewMeetupPage;
+    ```
+
+    > 데이터베이스에서 데이터 가져오기
+
+    따로 api 파일로 정의하기보다는, 서버에서만 실행되어 번들에 포함되지않고, 보안에도 유용한 `getStaticProps()`에 작성
+
+    ```js
+    export async function getStaticProps() {
+      // 서버에서만 실행되어 번들에 포함되지 않고 보안에도 유용하다.
+      const client = await MongoClient.connect(
+        'mongodb+srv://<username>:<password>@cluster0.sjwr7sg.mongodb.net/<dbname>?retryWrites=true&w=majority'
+      );
+      const db = client.db();
+
+      const meetupsCollection = db.collection('meetups');
+
+      const meetups = await meetupsCollection.find().toArray(); // 해당 컬렉션의 모든 문서 찾아 배열로 받음
+
+      client.close();
+
+      return {
+        props: {
+          meetups: meetups.map((meetup) => ({
+            image: meetup.image,
+            title: meetup.title,
+            address: meetup.address,
+            id: meetup._id.toString(), // 데이터베이스에 저장할 때 객체 형태로 저장되는 id를 받아옴
+          })),
+        },
+      };
+    }
+    ```
+
+<br>
+
+- **Vercel을 활용한 Next.js 프로젝트 배포**
+
+  - Vercel을 통해 배포를 Github 저장소를 배포하면 해당 저장소의 `main` 브랜치를 감시하며 변화가 감지될 때마다 Vercel이 자동으로 빌드, 재배포를 한다.
+
+  - 재배포 프로세스 중 이전 페이지는 계속 실행되고, 작업이 완료되면 새 페이지로 교체된다.
