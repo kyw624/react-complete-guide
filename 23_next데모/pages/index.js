@@ -1,31 +1,9 @@
-import MeetupList from '../components/meetups/MeetupList';
+import { MongoClient } from 'mongodb';
 
-const DUMMY_MEETUPS = [
-  {
-    id: 'm1',
-    title: '첫번째 모임',
-    image:
-      'https://content.skyscnr.com/m/1bf0d1856ed075b1/original/czech-republic-prague-gettyimages-503372055.jpg?resize=1800px:1800px&quality=100',
-    address: '서울',
-    description: '첫번째 모임입니다.',
-  },
-  {
-    id: 'm2',
-    title: '두번째 모임',
-    image:
-      'https://content.skyscnr.com/m/1bf0d1856ed075b1/original/czech-republic-prague-gettyimages-503372055.jpg?resize=1800px:1800px&quality=100',
-    address: '서울',
-    description: '두번째 모임입니다.',
-  },
-  {
-    id: 'm3',
-    title: '세번째 모임',
-    image:
-      'https://content.skyscnr.com/m/1bf0d1856ed075b1/original/czech-republic-prague-gettyimages-503372055.jpg?resize=1800px:1800px&quality=100',
-    address: '서울',
-    description: '세번째 모임입니다.',
-  },
-];
+import MeetupList from '../components/meetups/MeetupList';
+import { user } from '../db';
+
+const { username, password } = user;
 
 function HomePage(props) {
   return <MeetupList meetups={props.meetups} />;
@@ -33,9 +11,26 @@ function HomePage(props) {
 
 // 빌드 프로세스 중 실행되는 정적 생성 코드로 데이터 가져오기를 기다린 뒤 함께 렌더링됨.
 export async function getStaticProps() {
+  // 서버에서만 실행되어 번들에 포함되지 않고 보안에도 유용하다.
+  const client = await MongoClient.connect(
+    `mongodb+srv://${username}:${password}@cluster0.sjwr7sg.mongodb.net/meetups?retryWrites=true&w=majority`
+  );
+  const db = client.db();
+
+  const meetupsCollection = db.collection('meetups');
+
+  const meetups = await meetupsCollection.find().toArray(); // 해당 컬렉션의 모든 문서 찾아 배열로 받음
+
+  client.close();
+
   return {
     props: {
-      meetups: DUMMY_MEETUPS,
+      meetups: meetups.map((meetup) => ({
+        image: meetup.image,
+        title: meetup.title,
+        address: meetup.address,
+        id: meetup._id.toString(),
+      })),
     },
   };
 }
