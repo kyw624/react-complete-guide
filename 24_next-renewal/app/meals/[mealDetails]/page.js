@@ -2,9 +2,14 @@ import Image from 'next/image';
 
 import { getMeal } from '@/lib/meals';
 import classes from './page.module.css';
+import { notFound } from 'next/navigation';
 
 export default function MealDetailsPage({ params }) {
   const meal = getMeal(params.mealDetails);
+
+  if (!meal) {
+    notFound();
+  }
 
   meal.instructions = meal.instructions.replace(/\n/g, '<br />');
 
@@ -15,6 +20,7 @@ export default function MealDetailsPage({ params }) {
           <Image src={meal.image} alt={meal.title} fill />
         </div>
         <div className={classes.headerText}>
+
           <h1>{meal.title}</h1>
           <p className={classes.creator}>
             by <a href={`mailto:${meal.creator_email}`}>{meal.creator}</a>
