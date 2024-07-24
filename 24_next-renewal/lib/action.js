@@ -1,6 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 
 import { saveMeal } from './meals';
 
@@ -34,5 +35,12 @@ export async function shareMeal(prevState, formData) {
   }
 
   await saveMeal(meal);
+
+  // 해당 경로의 캐시의 유효성 재검사를 하는 함수.
+  // 2번째 인수로 해당 경로만 or 중첩된 페이지 포함 여부 선택 가능.
+  // 'page' (default): 해당 경로의 페이지만 재검사
+  // 'layout': 중첩된 모든 페이지 재검사
+  revalidatePath('/meals', 'page');
+
   redirect('/meals');
 }
